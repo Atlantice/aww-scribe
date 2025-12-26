@@ -6,14 +6,12 @@ import { Sidebar } from "@/components/sidebar"
 import { VisitList } from "@/components/visit-list"
 import { DetailPanel } from "@/components/detail-panel"
 import { ScribesList } from "@/components/scribes-list"
-import { ScribeEditor } from "@/components/scribe-editor"
 
 export default function AwwScribe() {
   const [activeSection, setActiveSection] = useState("overview")
   const [selectedItem, setSelectedItem] = useState("current-recording")
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [isNewScribe, setIsNewScribe] = useState(false)
   const [selectedScribeId, setSelectedScribeId] = useState<string | null>(null)
 
   // Hide middle panel on Overview section
@@ -24,9 +22,17 @@ export default function AwwScribe() {
     if (activeSection === "scribes") {
       return (
         <ScribesList
-          onNewScribe={() => setIsNewScribe(true)}
-          onSelectScribe={setSelectedScribeId}
+          onNewScribe={() => {
+            // Navigate to recording section to start new scribe
+            setActiveSection("recording")
+            setSelectedItem("current-recording")
+          }}
+          onSelectScribe={(scribeId) => {
+            setSelectedScribeId(scribeId)
+            setSelectedItem(scribeId)
+          }}
           selectedScribeId={selectedScribeId}
+          selectedPatientId={selectedPatient}
         />
       )
     }
@@ -42,17 +48,18 @@ export default function AwwScribe() {
 
   // Determine which detail panel to show
   const renderDetailPanel = () => {
-    if (activeSection === "scribes" && isNewScribe) {
+    // When in scribes section and a scribe is selected, show it in DetailPanel
+    if (activeSection === "scribes" && selectedScribeId) {
       return (
-        <ScribeEditor
-          onClose={() => setIsNewScribe(false)}
-          onSave={(content) => {
-            console.log("Saved scribe:", content)
-            setIsNewScribe(false)
-          }}
+        <DetailPanel
+          activeSection="recording"
+          selectedItem={selectedScribeId}
+          patientId={selectedPatient}
+          onSectionChange={setActiveSection}
         />
       )
     }
+
     return (
       <DetailPanel
         activeSection={activeSection}

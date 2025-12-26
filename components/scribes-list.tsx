@@ -1,58 +1,28 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Search, Mic, Edit3, Clock, Calendar } from "lucide-react"
+import { Plus, Search, Mic } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
-
-interface Scribe {
-  id: string
-  title: string
-  date: Date
-  preview: string
-  type: "ambient" | "manual"
-  patientName?: string
-}
+import { usePatientAppointments } from "@/hooks/use-firestore"
 
 interface ScribesListProps {
   onNewScribe: () => void
   onSelectScribe: (scribeId: string) => void
   selectedScribeId: string | null
+  selectedPatientId: string | null
 }
 
-export function ScribesList({ onNewScribe, onSelectScribe, selectedScribeId }: ScribesListProps) {
+export function ScribesList({ onNewScribe, onSelectScribe, selectedScribeId, selectedPatientId }: ScribesListProps) {
   const [searchQuery, setSearchQuery] = useState("")
+  const { appointments, loading } = usePatientAppointments(selectedPatientId, 50)
 
-  // Mock data - would come from Firestore in production
-  const scribes: Scribe[] = [
-    {
-      id: "1",
-      title: "Luna - Sick Visit",
-      date: new Date(2025, 11, 26, 14, 30),
-      preview: "Chief complaint: Vomiting and lethargy. Temperature 102.5°F...",
-      type: "ambient",
-      patientName: "Luna"
-    },
-    {
-      id: "2",
-      title: "Max - Wellness Exam",
-      date: new Date(2025, 11, 26, 10, 15),
-      preview: "Annual wellness examination. All vitals within normal limits...",
-      type: "ambient",
-      patientName: "Max"
-    },
-    {
-      id: "3",
-      title: "Bella - Follow-up",
-      date: new Date(2025, 11, 25, 16, 45),
-      preview: "Follow-up visit for ear infection. Significant improvement noted...",
-      type: "manual",
-      patientName: "Bella"
-    },
-  ]
+  // Filter appointments that have SOAP notes (completed scribes)
+  const scribes = appointments.filter(apt => apt.soap)
 
   const filteredScribes = scribes.filter(scribe =>
-    scribe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    scribe.preview.toLowerCase().includes(searchQuery.toLowerCase())
+    scribe.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    scribe.chiefComplaint?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    scribe.soap?.subjective?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (
@@ -86,63 +56,69 @@ export function ScribesList({ onNewScribe, onSelectScribe, selectedScribeId }: S
       {/* Scribes List */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-2 space-y-1">
-          {filteredScribes.map((scribe) => (
-            <button
-              key={scribe.id}
-              onClick={() => onSelectScribe(scribe.id)}
-              className={`
-                w-full text-left p-3 rounded-lg transition-all duration-200 group
-                ${
-                  selectedScribeId === scribe.id
-                    ? "bg-gray-100 dark:bg-gray-800"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-900"
-                }
-              `}
-            >
-              <div className="flex items-start gap-3">
-                {/* Icon indicator */}
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  scribe.type === "ambient"
-                    ? "bg-purple-100 dark:bg-purple-900/30"
-                    : "bg-blue-100 dark:bg-blue-900/30"
-                }`}>
-                  {scribe.type === "ambient" ? (
-                    <Mic className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  ) : (
-                    <Edit3 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  {/* Title */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-semibold text-foreground truncate">
-                      {scribe.title}
-                    </span>
-                    <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                      {formatDistanceToNow(scribe.date, { addSuffix: true })}
-                    </span>
-                  </div>
-
-                  {/* Preview */}
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-1">
-                    {scribe.preview}
-                  </p>
-
-                  {/* Metadata */}
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800">
-                      {scribe.type === "ambient" ? "Ambient" : "Manual"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
-
-          {filteredScribes.length === 0 && (
+          {loading && (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              {searchQuery ? "No scribes found" : "No scribes yet. Create your first one!"}
+              Loading scribes...
+            </div>
+          )}
+
+          {!loading && filteredScribes.map((appointment) => {
+            const preview = appointment.chiefComplaint || appointment.soap?.subjective?.substring(0, 100) || "No preview available"
+
+            return (
+              <button
+                key={appointment.id}
+                onClick={() => onSelectScribe(appointment.id)}
+                className={`
+                  w-full text-left p-3 rounded-lg transition-all duration-200 group
+                  ${
+                    selectedScribeId === appointment.id
+                      ? "bg-gray-100 dark:bg-gray-800"
+                      : "hover:bg-gray-50 dark:hover:bg-gray-900"
+                  }
+                `}
+              >
+                <div className="flex items-start gap-3">
+                  {/* Icon indicator - always show Mic since these are all ambient recordings */}
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-purple-100 dark:bg-purple-900/30">
+                    <Mic className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    {/* Title */}
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-semibold text-foreground truncate">
+                        {appointment.type}
+                        {appointment.chiefComplaint && ` - ${appointment.chiefComplaint}`}
+                      </span>
+                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                        {formatDistanceToNow(appointment.date, { addSuffix: true })}
+                      </span>
+                    </div>
+
+                    {/* Preview */}
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-1">
+                      {preview}
+                    </p>
+
+                    {/* Metadata */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                        Ambient
+                      </span>
+                      {appointment.veterinarianName && (
+                        <span>{appointment.veterinarianName}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+
+          {!loading && filteredScribes.length === 0 && (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              {searchQuery ? "No scribes found" : "No scribes yet. Start an ambient recording to create your first one!"}
             </div>
           )}
         </div>
