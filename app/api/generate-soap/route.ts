@@ -70,11 +70,14 @@ export async function POST(req: Request) {
 
 You have just listened to a complete veterinary appointment. Your task is to generate a comprehensive, professional SOAP note from the transcript.
 
-**PATIENT INFORMATION:**
+**PATIENT INFORMATION (for reference only):**
 ${patientInfo}
 
 **APPOINTMENT TRANSCRIPT:**
 ${transcript}
+
+**CRITICAL INSTRUCTION:**
+Only extract information that is explicitly mentioned in the transcript above. Do NOT include patient details (name, breed, age, weight) in the SOAP note unless they were specifically mentioned during the conversation. The patient information above is provided for context only - do not assume it was discussed during the appointment.
 
 **INSTRUCTIONS:**
 
