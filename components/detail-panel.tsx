@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Sparkles, Edit, Calendar, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LiveScribe } from "./live-scribe"
+import { OverviewDashboard } from "./overview-dashboard"
 import { usePatientAppointments } from "@/hooks/use-firestore"
 import type { Appointment } from "@/types/firestore"
 
@@ -334,6 +335,22 @@ export function DetailPanel({ activeSection, selectedItem, patientId }: DetailPa
       </div>
     </div>
   )
+
+  // Show overview dashboard when Overview section is active
+  if (activeSection === "overview") {
+    return (
+      <OverviewDashboard
+        patientName="Luna"
+        patientBreed="Golden Retriever"
+        patientAge="4 years"
+        patientId={patientId}
+        onStartRecording={() => {
+          // This would trigger switching to recording section
+          console.log("Start recording clicked from overview")
+        }}
+      />
+    )
+  }
 
   if (selectedItem === "current-recording" || activeSection === "recording") {
     return renderRecordingView()
