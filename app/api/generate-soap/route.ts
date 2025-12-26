@@ -7,6 +7,7 @@
 
 import { NextResponse } from 'next/server'
 import { VertexAI } from '@google-cloud/vertexai'
+import { getRecentSOAPNotes, formatHistoricalContext } from '@/lib/firestore-helpers'
 
 const vertexAI = new VertexAI({
   project: process.env.GOOGLE_CLOUD_PROJECT_ID!,
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
   try {
     const body: GenerateSOAPRequest = await req.json()
 
-    const { transcript, patientName, patientBreed, patientAge, patientWeight } = body
+    const { transcript, patientId, patientName, patientBreed, patientAge, patientWeight } = body
 
     if (!transcript || !transcript.trim()) {
       return NextResponse.json(
@@ -43,6 +44,18 @@ export async function POST(req: Request) {
         { error: 'Patient name and breed are required' },
         { status: 400 }
       )
+    }
+
+    // FETCH HISTORICAL CONTEXT
+    let historicalContext = ''
+    if (patientId) {
+      try {
+        const recentSOAPs = await getRecentSOAPNotes(patientId, 3)
+        historicalContext = formatHistoricalContext(recentSOAPs)
+      } catch (error) {
+        console.error('Failed to fetch historical context:', error)
+        historicalContext = 'Unable to fetch patient history'
+      }
     }
 
     // Get Gemini model
@@ -73,11 +86,15 @@ You have just listened to a complete veterinary appointment. Your task is to gen
 **PATIENT INFORMATION (for reference only):**
 ${patientInfo}
 
+${historicalContext ? `\n**PATIENT MEDICAL HISTORY:**\n${historicalContext}\n` : ''}
+
 **APPOINTMENT TRANSCRIPT:**
 ${transcript}
 
 **CRITICAL INSTRUCTION:**
 Only extract information that is explicitly mentioned in the transcript above. Do NOT include patient details (name, breed, age, weight) in the SOAP note unless they were specifically mentioned during the conversation. The patient information above is provided for context only - do not assume it was discussed during the appointment.
+
+${historicalContext ? 'If you have access to previous visit history above, reference it appropriately when clinically relevant (e.g., "No previous musculoskeletal concerns noted" or "Recurring issue - similar symptoms to previous visit").' : ''}
 
 **INSTRUCTIONS:**
 

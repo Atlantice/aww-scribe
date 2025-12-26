@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Client Test</title>
+</head>
+<body>
+  <h1>Firebase Client Connection Test</h1>
+  <div id="status">Testing...</div>
+  <pre id="output"></pre>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCvmhRgn9UMdV1ymCYU4m8B0mhfr8chMq0",
+      authDomain: "aww-alpha.firebaseapp.com",
+      projectId: "aww-alpha",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const statusDiv = document.getElementById('status');
+    const outputDiv = document.getElementById('output');
+
+    async function test() {
+      try {
+        statusDiv.textContent = '🔍 Connecting to Firestore...';
+        outputDiv.textContent = 'Attempting to read patients collection...\n';
+
+        const patientsRef = collection(db, 'patients');
+        const snapshot = await getDocs(patientsRef);
+
+        statusDiv.textContent = '✅ SUCCESS!';
+        outputDiv.textContent += `\n✅ Successfully read ${snapshot.size} patient(s)\n\n`;
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          outputDiv.textContent += `Patient ID: ${doc.id}\n`;
+          outputDiv.textContent += `Name: ${data.name}\n`;
+          outputDiv.textContent += `Species: ${data.species}\n\n`;
+        });
+
+      } catch (error) {
+        statusDiv.textContent = '❌ FAILED';
+        outputDiv.textContent += `\n❌ Error: ${error.message}\n`;
+        outputDiv.textContent += `Error Code: ${error.code}\n`;
+        outputDiv.textContent += `\nFull error:\n${JSON.stringify(error, null, 2)}`;
+      }
+    }
+
+    test();
+  </script>
+</body>
+</html>

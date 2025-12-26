@@ -14,7 +14,7 @@ import { useScribe } from '@elevenlabs/react'
 import { Mic, Sparkles, AlertCircle, Loader2 } from 'lucide-react'
 
 interface LiveScribeProps {
-  patientId: string
+  patientId: string | null
   patientName: string
   patientBreed: string
   patientAge?: string
@@ -35,6 +35,7 @@ interface SOAPNote {
   }
   chiefComplaint?: string
   diagnosis?: string
+  appointmentId?: string
 }
 
 export function LiveScribe({
@@ -48,6 +49,28 @@ export function LiveScribe({
   const [fullTranscript, setFullTranscript] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currentAppointmentId, setCurrentAppointmentId] = useState<string | null>(null)
+
+  // Create appointment in Firestore when recording starts
+  const createAppointment = async () => {
+    try {
+      const response = await fetch('/api/appointments/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientId,
+          veterinarianName: 'Dr. Sarah Chen',
+          type: 'Sick Visit',
+        }),
+      })
+
+      const { appointmentId } = await response.json()
+      setCurrentAppointmentId(appointmentId)
+      console.log('✅ Created appointment:', appointmentId)
+    } catch (error) {
+      console.error('❌ Failed to create appointment:', error)
+    }
+  }
 
   // ElevenLabs Scribe v2 hook
   const scribe = useScribe({
@@ -55,27 +78,31 @@ export function LiveScribe({
 
     // Partial transcripts (live, as speaking - optional to display)
     onPartialTranscript: (data) => {
-      console.log('Partial:', data.text)
+      console.log('📝 Partial transcript:', data.text)
     },
 
     // Committed transcripts (completed speech segments)
     onCommittedTranscript: (data) => {
-      console.log('Committed:', data.text)
+      console.log('✅ Committed transcript:', data.text)
+      console.log('📊 Total committed transcripts:', scribe.committedTranscripts.length + 1)
       setFullTranscript((prev) => (prev ? prev + ' ' + data.text : data.text))
+    },
+
+    // Connection events
+    onConnect: () => {
+      console.log('🔗 Connected to ElevenLabs Scribe')
+    },
+
+    onDisconnect: () => {
+      console.log('🔌 Disconnected from ElevenLabs Scribe')
     },
 
     // Error handling
     onError: (error) => {
-      console.error('Scribe error:', error)
-      setError(`Transcription error: ${error.message}`)
+      console.error('❌ Scribe error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      setError(`Transcription error: ${errorMessage}`)
     },
-
-    // Connection events
-    onOpen: () => {
-      console.log('Scribe connected')
-      setError(null)
-    },
-    onClose: () => console.log('Scribe disconnected'),
   })
 
   // Start recording
@@ -83,6 +110,9 @@ export function LiveScribe({
     try {
       setError(null)
       setFullTranscript('')
+
+      // Create appointment in Firestore first
+      await createAppointment()
 
       // Fetch single-use token
       const response = await fetch('/api/scribe-token')
@@ -121,7 +151,7 @@ export function LiveScribe({
         includeTimestamps: false,
       })
 
-      console.log('Recording started successfully')
+      console.log('✅ Recording started successfully')
     } catch (error) {
       console.error('Failed to start recording:', error)
       setError(
@@ -134,11 +164,59 @@ export function LiveScribe({
 
   // Stop recording and generate SOAP
   const handleStopAndGenerate = async () => {
+    console.log('🛑 Stopping recording...')
+    console.log('📊 Scribe state:', {
+      isConnected: scribe.isConnected,
+      committedTranscriptsCount: scribe.committedTranscripts.length,
+      partialTranscript: scribe.partialTranscript,
+    })
+
+    // Build the final transcript from ALL sources:
+    // 1. Committed transcripts (finalized segments)
+    // 2. Current partial transcript (not yet committed)
+    // 3. Fallback to fullTranscript state
+    const committedText = scribe.committedTranscripts
+      .map(t => t.text)
+      .join(' ')
+      .trim()
+
+    const partialText = scribe.partialTranscript?.trim() || ''
+
+    // Combine all transcript sources
+    let finalTranscript = committedText
+    if (partialText && !finalTranscript.includes(partialText)) {
+      finalTranscript = finalTranscript ? `${finalTranscript} ${partialText}` : partialText
+    }
+
+    // Final fallback to state
+    if (!finalTranscript && fullTranscript) {
+      finalTranscript = fullTranscript
+    }
+
+    finalTranscript = finalTranscript.trim()
+
+    console.log('📝 Committed text:', committedText)
+    console.log('🔄 Partial text:', partialText)
+    console.log('✅ Final transcript:', finalTranscript)
+    console.log('📏 Final transcript length:', finalTranscript.length)
+
     // Disconnect from ElevenLabs
     scribe.disconnect()
 
-    if (!fullTranscript.trim()) {
+    if (!finalTranscript) {
+      console.error('❌ No transcript captured!')
+      console.error('Debug info:', {
+        committedCount: scribe.committedTranscripts.length,
+        hasPartial: !!scribe.partialTranscript,
+        stateTranscript: fullTranscript,
+      })
       setError('No transcript to process. Please speak during the recording.')
+      return
+    }
+
+    if (!currentAppointmentId) {
+      console.error('❌ No appointment ID!')
+      setError('No appointment ID - please try recording again')
       return
     }
 
@@ -151,7 +229,7 @@ export function LiveScribe({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          transcript: fullTranscript, // Clean transcript - patient info NOT included here
+          transcript: finalTranscript, // Use the finalTranscript we just built
           // Patient details below are sent separately as context for AI prompt,
           // NOT merged into the transcript text
           patientId,
@@ -169,12 +247,42 @@ export function LiveScribe({
 
       const soap = await response.json()
 
-      // Send SOAP to parent component for display
-      if (onSOAPGenerated) {
-        onSOAPGenerated(soap)
+      console.log('✅ SOAP note generated, now saving to Firestore...')
+
+      // Save SOAP note to Firestore
+      const saveResponse = await fetch('/api/appointments/save-soap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointmentId: currentAppointmentId,
+          soap: {
+            subjective: soap.subjective,
+            objective: soap.objective,
+            assessment: soap.assessment,
+            plan: soap.plan,
+            vitals: soap.vitals,
+          },
+        }),
+      })
+
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json()
+        throw new Error(errorData.error || 'Failed to save SOAP note')
       }
 
-      console.log('SOAP note generated successfully')
+      console.log('✅ SOAP note saved to Firestore successfully')
+
+      // Send SOAP to parent component for UI display
+      if (onSOAPGenerated) {
+        onSOAPGenerated({
+          ...soap,
+          appointmentId: currentAppointmentId,
+        })
+      }
+
+      // Reset for next recording
+      setCurrentAppointmentId(null)
+      setFullTranscript('')
     } catch (error) {
       console.error('Failed to generate SOAP:', error)
       setError(

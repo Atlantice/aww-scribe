@@ -9,7 +9,7 @@ import { DetailPanel } from "@/components/detail-panel"
 export default function AwwScribe() {
   const [activeSection, setActiveSection] = useState("recording")
   const [selectedItem, setSelectedItem] = useState("current-recording")
-  const [selectedPatient, setSelectedPatient] = useState("luna")
+  const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -28,14 +28,23 @@ export default function AwwScribe() {
 
         {/* Middle Column - 340px approx */}
         <ResizablePanel defaultSize={24} minSize={20} maxSize={30}>
-          <VisitList activeSection={activeSection} selectedItem={selectedItem} onItemSelect={setSelectedItem} />
+          <VisitList
+            activeSection={activeSection}
+            selectedItem={selectedItem}
+            onItemSelect={setSelectedItem}
+            selectedPatientId={selectedPatient}
+          />
         </ResizablePanel>
 
         <ResizableHandle className="w-px bg-border" />
 
         {/* Right Panel - Remaining width */}
         <ResizablePanel defaultSize={60} minSize={45}>
-          <DetailPanel activeSection={activeSection} selectedItem={selectedItem} />
+          <DetailPanel
+            activeSection={activeSection}
+            selectedItem={selectedItem}
+            patientId={selectedPatient}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

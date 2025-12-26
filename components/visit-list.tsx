@@ -1,71 +1,26 @@
 "use client"
 
 import { Search, Sparkles } from "lucide-react"
+import { usePatientAppointments, usePatientMedications } from "@/hooks/use-firestore"
+import { format, formatDistanceToNow } from "date-fns"
 
 interface VisitListProps {
   activeSection: string
   selectedItem: string
   onItemSelect: (itemId: string) => void
+  selectedPatientId: string | null
 }
 
-const visits = [
-  {
-    id: "recent-1",
-    date: "Dec 13, 2024",
-    type: "Sick Visit - Limping",
-    doctor: "Dr. Sarah Chen",
-    tags: [
-      { label: "limping", color: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" },
-      { label: "resolved", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
-    ],
-    timeAgo: "2 weeks ago",
-  },
-  {
-    id: "recent-2",
-    date: "Nov 28, 2024",
-    type: "Wellness Exam",
-    doctor: "Dr. Sarah Chen",
-    tags: [
-      { label: "wellness", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
-      { label: "normal", color: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" },
-    ],
-    timeAgo: "about a month ago",
-  },
-  {
-    id: "recent-3",
-    date: "Aug 15, 2024",
-    type: "Sick Visit - Ear Infection",
-    doctor: "Dr. Michael Torres",
-    tags: [
-      { label: "ear", color: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" },
-      { label: "infection", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
-    ],
-    timeAgo: "4 months ago",
-  },
-]
+export function VisitList({ activeSection, selectedItem, onItemSelect, selectedPatientId }: VisitListProps) {
+  const { appointments, loading: appointmentsLoading } = usePatientAppointments(selectedPatientId, 10)
+  const { medications, loading: medicationsLoading } = usePatientMedications(selectedPatientId)
 
-const medications = [
-  {
-    id: "med-1",
-    name: "Carprofen 75mg",
-    dosage: "Twice daily with food",
-    remaining: "4 days remaining",
-    tags: [
-      { label: "pain", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
-      { label: "inflammation", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
-    ],
-    date: "Dec 13, 2024",
-  },
-  {
-    id: "med-2",
-    name: "Apoquel 16mg",
-    dosage: "Daily (ongoing)",
-    tags: [{ label: "allergies", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" }],
-    date: "Started: May 2024",
-  },
-]
-
-export function VisitList({ activeSection, selectedItem, onItemSelect }: VisitListProps) {
+  console.log('🟢 VisitList state:', {
+    selectedPatientId,
+    appointmentsCount: appointments.length,
+    appointmentsLoading,
+    appointments: appointments.map(a => ({ id: a.id, date: a.date, type: a.type }))
+  })
   const renderRecordingList = () => (
     <div className="flex-1 overflow-y-auto">
       <div className="p-3 space-y-2">
@@ -73,11 +28,11 @@ export function VisitList({ activeSection, selectedItem, onItemSelect }: VisitLi
         <button
           onClick={() => onItemSelect("current-recording")}
           className={`
-            w-full text-left p-3 rounded-xl transition-all group
+            w-full text-left p-3 rounded-lg transition-all duration-200 group
             ${
               selectedItem === "current-recording"
-                ? "bg-[#f9f7ff] dark:bg-[#2e1065] shadow-sm"
-                : "hover:bg-purple-50/50 dark:hover:bg-[#1e1538]"
+                ? "bg-gray-100 dark:bg-gray-800"
+                : "hover:bg-gray-50 dark:hover:bg-gray-900"
             }
           `}
         >
@@ -108,40 +63,55 @@ export function VisitList({ activeSection, selectedItem, onItemSelect }: VisitLi
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-1">Recent Visits</h3>
         </div>
 
-        {/* Past Visits */}
-        {visits.map((visit) => (
+        {/* Loading state */}
+        {appointmentsLoading && (
+          <div className="p-3 text-sm text-muted-foreground text-center">Loading appointments...</div>
+        )}
+
+        {/* Past Visits - FROM FIRESTORE */}
+        {!appointmentsLoading && appointments.map((appointment) => (
           <button
-            key={visit.id}
-            onClick={() => onItemSelect(visit.id)}
+            key={appointment.id}
+            onClick={() => onItemSelect(appointment.id)}
             className={`
-              w-full text-left p-3 rounded-xl transition-all group
+              w-full text-left p-3 rounded-lg transition-all duration-200 group
               ${
-                selectedItem === visit.id
-                  ? "bg-[#f9f7ff] dark:bg-[#2e1065] shadow-sm"
-                  : "hover:bg-purple-50/50 dark:hover:bg-[#1e1538]"
+                selectedItem === appointment.id
+                  ? "bg-gray-100 dark:bg-gray-800"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-900"
               }
             `}
           >
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 mt-1.5" />
+              <div className={`w-2 h-2 rounded-full mt-1.5 ${
+                appointment.status === 'Completed'
+                  ? 'bg-gray-300 dark:bg-gray-600'
+                  : 'bg-blue-500 dark:bg-blue-400'
+              }`} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-semibold text-foreground">{visit.date}</span>
-                  <span className="text-xs text-muted-foreground">{visit.timeAgo}</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {format(appointment.date, 'MMM dd, yyyy')}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(appointment.date, { addSuffix: true })}
+                  </span>
                 </div>
-                <div className="text-sm text-muted-foreground mb-1">{visit.type}</div>
-                <div className="text-xs text-muted-foreground">{visit.doctor}</div>
-                <div className="flex gap-2 mt-2 flex-wrap">
-                  {visit.tags.map((tag) => (
-                    <span key={tag.label} className={`px-2 py-0.5 text-xs rounded-full ${tag.color}`}>
-                      {tag.label}
-                    </span>
-                  ))}
+                <div className="text-sm text-muted-foreground mb-1">
+                  {appointment.type}{appointment.chiefComplaint && ` - ${appointment.chiefComplaint}`}
                 </div>
+                <div className="text-xs text-muted-foreground">{appointment.veterinarianName}</div>
               </div>
             </div>
           </button>
         ))}
+
+        {/* Empty state */}
+        {!appointmentsLoading && appointments.length === 0 && (
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No appointments yet. Start a recording to create the first one!
+          </div>
+        )}
       </div>
     </div>
   )
@@ -154,16 +124,23 @@ export function VisitList({ activeSection, selectedItem, onItemSelect }: VisitLi
             Active Medications
           </h3>
         </div>
-        {medications.map((med) => (
+
+        {/* Loading state */}
+        {medicationsLoading && (
+          <div className="p-3 text-sm text-muted-foreground text-center">Loading medications...</div>
+        )}
+
+        {/* Medications - FROM FIRESTORE */}
+        {!medicationsLoading && medications.map((med) => (
           <button
             key={med.id}
             onClick={() => onItemSelect(med.id)}
             className={`
-              w-full text-left p-3 rounded-xl transition-all
+              w-full text-left p-3 rounded-lg transition-all duration-200
               ${
                 selectedItem === med.id
-                  ? "bg-[#f9f7ff] dark:bg-[#2e1065] shadow-sm"
-                  : "hover:bg-purple-50/50 dark:hover:bg-[#1e1538]"
+                  ? "bg-gray-100 dark:bg-gray-800"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-900"
               }
             `}
           >
@@ -171,20 +148,26 @@ export function VisitList({ activeSection, selectedItem, onItemSelect }: VisitLi
               <div className="w-2 h-2 rounded-full bg-green-600 dark:bg-green-500 mt-2" />
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm text-foreground mb-1">{med.name}</div>
-                <div className="text-sm text-muted-foreground mb-1">{med.dosage}</div>
-                {med.remaining && <div className="text-sm text-muted-foreground mb-2">{med.remaining}</div>}
-                <div className="flex gap-2 flex-wrap">
-                  {med.tags.map((tag) => (
-                    <span key={tag.label} className={`px-2 py-0.5 text-xs rounded-full ${tag.color}`}>
-                      {tag.label}
-                    </span>
-                  ))}
+                <div className="text-sm text-muted-foreground mb-1">
+                  {med.dosage} {med.route && `(${med.route})`} - {med.frequency}
                 </div>
-                {med.date && <div className="text-xs text-muted-foreground mt-2">{med.date}</div>}
+                {med.instructions && (
+                  <div className="text-xs text-muted-foreground mb-2">{med.instructions}</div>
+                )}
+                <div className="text-xs text-muted-foreground mt-2">
+                  {format(med.startDate, 'MMM dd, yyyy')}
+                </div>
               </div>
             </div>
           </button>
         ))}
+
+        {/* Empty state */}
+        {!medicationsLoading && medications.length === 0 && (
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No active medications
+          </div>
+        )}
       </div>
     </div>
   )
@@ -194,20 +177,20 @@ export function VisitList({ activeSection, selectedItem, onItemSelect }: VisitLi
       {/* Header */}
       <div className="p-4 border-b border-border space-y-3">
         <h2 className="font-semibold text-lg text-foreground capitalize">{activeSection}</h2>
-        <div className="flex gap-2">
-          <button className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-sm font-medium transition-colors">
+        <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-900 rounded-lg">
+          <button className="flex-1 px-3 py-1.5 text-xs font-medium rounded-md bg-white dark:bg-gray-800 shadow-sm text-foreground transition-all duration-200">
             All
           </button>
-          <button className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-muted-foreground text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <button className="flex-1 px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground transition-all duration-200">
             {activeSection === "recording" ? "In Progress" : "Active"}
           </button>
         </div>
         <div className="relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            type="text"
+            type="search"
             placeholder={`Search ${activeSection}...`}
-            className="w-full pl-9 pr-3 py-2 text-sm bg-[#fafafa] dark:bg-[#1a1a1a] border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-900 border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
           />
         </div>
       </div>
