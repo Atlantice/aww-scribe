@@ -12,6 +12,8 @@ import {
   CreditCard,
   Settings,
   ChevronDown,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react"
 import { usePatients } from "@/hooks/use-firestore"
 
@@ -35,6 +37,7 @@ interface SidebarProps {
 
 export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPatientChange }: SidebarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const { patients, loading, error } = usePatients()
 
   // Auto-select first patient when loaded (using useEffect to avoid state update during render)
@@ -78,28 +81,40 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
   const currentPatient = patients.find((p) => p.id === selectedPatient) || patients[0]
 
   return (
-    <div className="flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border">
-      {/* App Title */}
-      <div className="px-4 pt-4 pb-3">
-        <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
+    <div className={`flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-full'}`}>
+      {/* App Title with Toggle */}
+      <div className="px-4 pt-4 pb-3 flex items-center justify-between">
+        {!isCollapsed && <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors duration-200"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? (
+            <ChevronsRight className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronsLeft className="w-4 h-4 text-muted-foreground" />
+          )}
+        </button>
       </div>
 
       {/* Patient Selector - Claude-inspired style */}
-      <div className="px-3 pb-4">
-        <div className="relative">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full px-3 py-2.5 flex items-center gap-3 bg-white dark:bg-gray-900 border border-border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 group"
-          >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentPatient.avatarColor || 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'}`}>
-              <span className="text-sm font-semibold">{currentPatient.initial}</span>
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <div className="text-sm font-semibold text-foreground truncate">{currentPatient.name}</div>
-              <div className="text-xs text-muted-foreground truncate">{currentPatient.species}</div>
-            </div>
-            <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground flex-shrink-0 transition-colors duration-200" />
-          </button>
+      {!isCollapsed && (
+        <div className="px-3 pb-4">
+          <div className="relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-full px-3 py-2.5 flex items-center gap-3 bg-white dark:bg-gray-900 border border-border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 group"
+            >
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentPatient.avatarColor || 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                <span className="text-sm font-semibold">{currentPatient.initial}</span>
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <div className="text-sm font-semibold text-foreground truncate">{currentPatient.name}</div>
+                <div className="text-xs text-muted-foreground truncate">{currentPatient.species}</div>
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground flex-shrink-0 transition-colors duration-200" />
+            </button>
 
           {dropdownOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a1a] border border-border rounded-lg shadow-lg overflow-hidden z-50">
@@ -125,8 +140,22 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
               ))}
             </div>
           )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Collapsed Patient Avatar */}
+      {isCollapsed && (
+        <div className="px-2 pb-4">
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 mx-auto hover:scale-110 transition-transform duration-200"
+            title={currentPatient.name}
+          >
+            <span className="text-sm font-semibold">{currentPatient.initial}</span>
+          </button>
+        </div>
+      )}
 
       {/* Navigation Items - Claude-inspired design */}
       <div className="flex-1 overflow-y-auto px-2 space-y-1">
@@ -139,7 +168,7 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
               key={item.id}
               onClick={() => onSectionChange(item.id)}
               className={`
-                w-full px-3 py-2 flex items-center gap-3 rounded-lg text-left
+                w-full ${isCollapsed ? 'px-0 justify-center' : 'px-3'} py-2 flex items-center gap-3 rounded-lg text-left
                 transition-all duration-200
                 ${
                   isActive
@@ -147,15 +176,23 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
                     : "text-muted-foreground hover:text-foreground hover:bg-gray-50 dark:hover:bg-gray-900"
                 }
               `}
+              title={isCollapsed ? item.label : undefined}
             >
-              <Icon className={`w-4 h-4 ${isActive ? "text-foreground" : ""}`} />
-              <span className="flex-1 text-sm font-medium">
-                {item.label}
-              </span>
-              {item.badge && (
-                <span className="ml-auto w-5 h-5 flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full">
-                  {item.badge}
-                </span>
+              <Icon className={`w-4 h-4 ${isActive ? "text-foreground" : ""} ${isCollapsed ? 'mx-auto' : ''}`} />
+              {!isCollapsed && (
+                <>
+                  <span className="flex-1 text-sm font-medium">
+                    {item.label}
+                  </span>
+                  {item.badge && (
+                    <span className="ml-auto w-5 h-5 flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                </>
+              )}
+              {isCollapsed && item.badge && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
               )}
             </button>
           )
@@ -164,9 +201,12 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
 
       {/* Settings at bottom */}
       <div className="p-3 border-t border-border">
-        <button className="w-full px-3 py-2 flex items-center gap-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-200 text-left">
-          <Settings className="w-4 h-4" />
-          <span className="text-sm">Settings</span>
+        <button
+          className={`w-full ${isCollapsed ? 'px-0 justify-center' : 'px-3'} py-2 flex items-center gap-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-200 text-left`}
+          title={isCollapsed ? "Settings" : undefined}
+        >
+          <Settings className={`w-4 h-4 ${isCollapsed ? 'mx-auto' : ''}`} />
+          {!isCollapsed && <span className="text-sm">Settings</span>}
         </button>
       </div>
     </div>
