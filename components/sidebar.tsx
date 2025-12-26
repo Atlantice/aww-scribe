@@ -14,11 +14,13 @@ import {
   ChevronDown,
   ChevronsLeft,
   ChevronsRight,
+  MessageSquare,
 } from "lucide-react"
 import { usePatients } from "@/hooks/use-firestore"
 
 const navItems = [
   { id: "overview", label: "Overview", icon: Home, badge: null },
+  { id: "scribes", label: "Scribes", icon: MessageSquare, badge: null },
   { id: "recording", label: "Recording", icon: Mic, badge: null },
   { id: "history", label: "Medical History", icon: FileText, badge: null },
   { id: "medications", label: "Medications", icon: Pill, badge: 2 },
@@ -33,12 +35,19 @@ interface SidebarProps {
   onSectionChange: (section: string) => void
   selectedPatient: string | null
   onPatientChange: (patientId: string) => void
+  onCollapseChange?: (collapsed: boolean) => void
 }
 
-export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPatientChange }: SidebarProps) {
+export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPatientChange, onCollapseChange }: SidebarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { patients, loading, error } = usePatients()
+
+  // Notify parent of collapse state changes
+  const handleCollapseToggle = (collapsed: boolean) => {
+    setIsCollapsed(collapsed)
+    onCollapseChange?.(collapsed)
+  }
 
   // Auto-select first patient when loaded (using useEffect to avoid state update during render)
   useEffect(() => {
@@ -86,7 +95,7 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
       <div className="px-4 pt-4 pb-3 flex items-center justify-between">
         {!isCollapsed && <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>}
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => handleCollapseToggle(!isCollapsed)}
           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors duration-200"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
@@ -148,7 +157,7 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
       {isCollapsed && (
         <div className="px-2 pb-4">
           <button
-            onClick={() => setIsCollapsed(false)}
+            onClick={() => handleCollapseToggle(false)}
             className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 mx-auto hover:scale-110 transition-transform duration-200"
             title={currentPatient.name}
           >
