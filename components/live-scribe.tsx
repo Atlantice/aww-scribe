@@ -46,7 +46,6 @@ export function LiveScribe({
   onSOAPGenerated,
 }: LiveScribeProps) {
   const [fullTranscript, setFullTranscript] = useState('')
-  const [soapNote, setSoapNote] = useState<SOAPNote | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -84,7 +83,6 @@ export function LiveScribe({
     try {
       setError(null)
       setFullTranscript('')
-      setSoapNote(null)
 
       // Fetch single-use token
       const response = await fetch('/api/scribe-token')
@@ -153,7 +151,9 @@ export function LiveScribe({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          transcript: fullTranscript,
+          transcript: fullTranscript, // Clean transcript - patient info NOT included here
+          // Patient details below are sent separately as context for AI prompt,
+          // NOT merged into the transcript text
           patientId,
           patientName,
           patientBreed,
@@ -168,9 +168,8 @@ export function LiveScribe({
       }
 
       const soap = await response.json()
-      setSoapNote(soap)
 
-      // Call the callback to send SOAP to parent
+      // Send SOAP to parent component for display
       if (onSOAPGenerated) {
         onSOAPGenerated(soap)
       }
@@ -292,70 +291,6 @@ export function LiveScribe({
             <p className="text-xs text-purple-700 mt-0.5">
               Extracting medical entities and generating SOAP note...
             </p>
-          </div>
-        </div>
-      )}
-
-      {/* Generated SOAP Note */}
-      {soapNote && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">SOAP Note</h2>
-            <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-              Generated
-            </span>
-          </div>
-
-          {/* Subjective */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="px-5 py-3 bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500">
-              <h3 className="text-sm font-bold text-blue-900">[S] SUBJECTIVE</h3>
-              <p className="text-xs text-blue-700 mt-0.5">Chief complaint and history</p>
-            </div>
-            <div className="p-5">
-              <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                {soapNote.subjective}
-              </p>
-            </div>
-          </div>
-
-          {/* Objective */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="px-5 py-3 bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500">
-              <h3 className="text-sm font-bold text-green-900">[O] OBJECTIVE</h3>
-              <p className="text-xs text-green-700 mt-0.5">Physical exam and vitals</p>
-            </div>
-            <div className="p-5">
-              <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                {soapNote.objective}
-              </p>
-            </div>
-          </div>
-
-          {/* Assessment */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="px-5 py-3 bg-gradient-to-r from-amber-50 to-amber-100 border-l-4 border-amber-500">
-              <h3 className="text-sm font-bold text-amber-900">[A] ASSESSMENT</h3>
-              <p className="text-xs text-amber-700 mt-0.5">Diagnosis and interpretation</p>
-            </div>
-            <div className="p-5">
-              <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                {soapNote.assessment}
-              </p>
-            </div>
-          </div>
-
-          {/* Plan */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="px-5 py-3 bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-purple-500">
-              <h3 className="text-sm font-bold text-purple-900">[P] PLAN</h3>
-              <p className="text-xs text-purple-700 mt-0.5">Treatment and follow-up</p>
-            </div>
-            <div className="p-5">
-              <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                {soapNote.plan}
-              </p>
-            </div>
           </div>
         </div>
       )}

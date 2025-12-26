@@ -109,17 +109,20 @@ export function DetailPanel({ activeSection, selectedItem }: DetailPanelProps) {
             {/* SOAP Note Sections - Clean with colored left border */}
             <div className="space-y-3">
               {/* Subjective */}
-              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-blue-50 dark:bg-blue-950/30 border-l-4 border-primary">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-sm">
+                <div className="px-5 py-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:bg-gradient-to-r dark:from-blue-950/30 dark:to-blue-900/20 border-l-4 border-blue-500">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-primary">[S] SUBJECTIVE</h3>
+                    <div>
+                      <h3 className="text-sm font-bold text-blue-900 dark:text-blue-100">[S] SUBJECTIVE</h3>
+                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">Chief complaint and history</p>
+                    </div>
                     <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
                       <Edit className="w-3 h-3" />
                       Edit
                     </button>
                   </div>
                 </div>
-                <div className="p-4">
+                <div className="p-5">
                   <p className="text-sm text-foreground leading-relaxed text-pretty">
                     {generatedSOAP.subjective}
                   </p>
@@ -127,33 +130,39 @@ export function DetailPanel({ activeSection, selectedItem }: DetailPanelProps) {
               </div>
 
               {/* Objective */}
-              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-green-50 dark:bg-green-950/30 border-l-4 border-green-600">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-sm">
+                <div className="px-5 py-3 bg-gradient-to-r from-green-50 to-green-100 dark:bg-gradient-to-r dark:from-green-950/30 dark:to-green-900/20 border-l-4 border-green-500">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-green-600">[O] OBJECTIVE</h3>
+                    <div>
+                      <h3 className="text-sm font-bold text-green-900 dark:text-green-100">[O] OBJECTIVE</h3>
+                      <p className="text-xs text-green-700 dark:text-green-300 mt-0.5">Physical exam and vitals</p>
+                    </div>
                     <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
                       <Edit className="w-3 h-3" />
                       Edit
                     </button>
                   </div>
                 </div>
-                <div className="p-4 space-y-2 text-sm text-foreground leading-relaxed">
+                <div className="p-5 space-y-2 text-sm text-foreground leading-relaxed">
                   <p className="whitespace-pre-wrap">{generatedSOAP.objective}</p>
                 </div>
               </div>
 
               {/* Assessment */}
-              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-amber-50 dark:bg-amber-950/30 border-l-4 border-amber-600">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-sm">
+                <div className="px-5 py-3 bg-gradient-to-r from-amber-50 to-amber-100 dark:bg-gradient-to-r dark:from-amber-950/30 dark:to-amber-900/20 border-l-4 border-amber-500">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-amber-600">[A] ASSESSMENT</h3>
+                    <div>
+                      <h3 className="text-sm font-bold text-amber-900 dark:text-amber-100">[A] ASSESSMENT</h3>
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">Diagnosis and interpretation</p>
+                    </div>
                     <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
                       <Edit className="w-3 h-3" />
                       Edit
                     </button>
                   </div>
                 </div>
-                <div className="p-4">
+                <div className="p-5">
                   <p className="text-sm text-foreground leading-relaxed text-pretty">
                     {generatedSOAP.assessment}
                   </p>
@@ -161,17 +170,20 @@ export function DetailPanel({ activeSection, selectedItem }: DetailPanelProps) {
               </div>
 
               {/* Plan */}
-              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-purple-50 dark:bg-purple-950/30 border-l-4 border-[#8b5cf6]">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-sm">
+                <div className="px-5 py-3 bg-gradient-to-r from-purple-50 to-purple-100 dark:bg-gradient-to-r dark:from-purple-950/30 dark:to-purple-900/20 border-l-4 border-purple-500">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-[#8b5cf6]">[P] PLAN</h3>
+                    <div>
+                      <h3 className="text-sm font-bold text-purple-900 dark:text-purple-100">[P] PLAN</h3>
+                      <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">Treatment and follow-up</p>
+                    </div>
                     <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
                       <Edit className="w-3 h-3" />
                       Edit
                     </button>
                   </div>
                 </div>
-                <div className="p-4 space-y-3 text-sm text-foreground">
+                <div className="p-5 space-y-3 text-sm text-foreground">
                   <p className="whitespace-pre-wrap">{generatedSOAP.plan}</p>
                 </div>
               </div>
