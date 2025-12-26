@@ -12,6 +12,7 @@ interface DetailPanelProps {
   activeSection: string
   selectedItem: string
   patientId: string | null
+  onSectionChange?: (section: string) => void
 }
 
 interface SOAPNote {
@@ -30,7 +31,7 @@ interface SOAPNote {
   appointmentId?: string
 }
 
-export function DetailPanel({ activeSection, selectedItem, patientId }: DetailPanelProps) {
+export function DetailPanel({ activeSection, selectedItem, patientId, onSectionChange }: DetailPanelProps) {
   const [generatedSOAP, setGeneratedSOAP] = useState<SOAPNote | null>(null)
   const [currentAppointment, setCurrentAppointment] = useState<Appointment | null>(null)
 
@@ -345,9 +346,9 @@ export function DetailPanel({ activeSection, selectedItem, patientId }: DetailPa
         patientAge="4 years"
         patientId={patientId}
         onStartRecording={() => {
-          // This would trigger switching to recording section
-          console.log("Start recording clicked from overview")
+          onSectionChange?.("recording")
         }}
+        onNavigateToSection={onSectionChange}
       />
     )
   }

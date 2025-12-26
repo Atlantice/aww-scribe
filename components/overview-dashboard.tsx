@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Sparkles,
   Mic,
@@ -18,6 +18,8 @@ import {
   DollarSign,
   Clock,
   Plus,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react"
 
 interface OverviewDashboardProps {
@@ -26,6 +28,7 @@ interface OverviewDashboardProps {
   patientAge: string
   patientId: string | null
   onStartRecording?: () => void
+  onNavigateToSection?: (section: string) => void
 }
 
 export function OverviewDashboard({
@@ -34,8 +37,10 @@ export function OverviewDashboard({
   patientAge,
   patientId,
   onStartRecording,
+  onNavigateToSection,
 }: OverviewDashboardProps) {
   const [chatInput, setChatInput] = useState("")
+  const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true)
 
   // Mock data - would come from Firestore in production
   const latestVitals = {
@@ -74,13 +79,58 @@ export function OverviewDashboard({
   }
 
   const quickActions = [
-    { icon: Mic, label: "Start Recording", color: "primary", onClick: onStartRecording },
-    { icon: Pill, label: "Add Medication", color: "green" },
-    { icon: FlaskConical, label: "View Lab Results", color: "blue" },
-    { icon: Calendar, label: "Schedule Appointment", color: "purple" },
-    { icon: FileText, label: "Generate Report", color: "amber" },
-    { icon: MessageCircle, label: `Ask About ${patientName}`, color: "pink" },
+    {
+      icon: Mic,
+      label: "Start Recording",
+      color: "primary",
+      onClick: onStartRecording,
+      section: "recording"
+    },
+    {
+      icon: Pill,
+      label: "Add Medication",
+      color: "green",
+      section: "medications"
+    },
+    {
+      icon: FlaskConical,
+      label: "View Lab Results",
+      color: "blue",
+      section: "labs"
+    },
+    {
+      icon: Calendar,
+      label: "Schedule Appointment",
+      color: "purple",
+      onClick: () => {
+        // Would open scheduling modal
+        console.log("Schedule appointment")
+      }
+    },
+    {
+      icon: FileText,
+      label: "Generate Report",
+      color: "amber",
+      section: "documents"
+    },
+    {
+      icon: MessageCircle,
+      label: `Ask About ${patientName}`,
+      color: "pink",
+      onClick: () => {
+        // Would activate chat
+        console.log("Ask about patient")
+      }
+    },
   ]
+
+  const handleQuickAction = (action: typeof quickActions[0]) => {
+    if (action.onClick) {
+      action.onClick()
+    } else if (action.section && onNavigateToSection) {
+      onNavigateToSection(action.section)
+    }
+  }
 
   return (
     <div className="h-full overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-950/50 dark:to-gray-900">
@@ -133,25 +183,47 @@ export function OverviewDashboard({
           </div>
         </motion.div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - Collapsible */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="text-sm font-semibold text-foreground mb-3">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {quickActions.map((action, index) => (
-              <button
-                key={index}
-                onClick={action.onClick}
-                className="p-4 bg-white dark:bg-gray-900 border border-border rounded-xl hover:shadow-md hover:border-primary/50 transition-all duration-200 text-left group"
+          <button
+            onClick={() => setIsQuickActionsExpanded(!isQuickActionsExpanded)}
+            className="flex items-center justify-between w-full mb-3 group"
+          >
+            <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
+            {isQuickActionsExpanded ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+            )}
+          </button>
+
+          <AnimatePresence>
+            {isQuickActionsExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
               >
-                <action.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary mb-2 transition-colors duration-200" />
-                <div className="text-sm font-medium text-foreground">{action.label}</div>
-              </button>
-            ))}
-          </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {quickActions.map((action, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleQuickAction(action)}
+                      className="p-4 bg-white dark:bg-gray-900 border border-border rounded-xl hover:shadow-md hover:border-primary/50 transition-all duration-200 text-left group"
+                    >
+                      <action.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary mb-2 transition-colors duration-200" />
+                      <div className="text-sm font-medium text-foreground">{action.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Health Snapshot */}
