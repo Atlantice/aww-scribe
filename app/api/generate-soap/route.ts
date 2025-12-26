@@ -134,7 +134,8 @@ Generate the SOAP note now:`
 
     // Generate SOAP note
     const result = await model.generateContent(prompt)
-    const responseText = result.response.text()
+    const response = result.response
+    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
     if (!responseText) {
       throw new Error('No response from Gemini model')

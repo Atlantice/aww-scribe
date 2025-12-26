@@ -19,6 +19,7 @@ interface LiveScribeProps {
   patientBreed: string
   patientAge?: string
   patientWeight?: string
+  onSOAPGenerated?: (soap: SOAPNote) => void
 }
 
 interface SOAPNote {
@@ -42,6 +43,7 @@ export function LiveScribe({
   patientBreed,
   patientAge,
   patientWeight,
+  onSOAPGenerated,
 }: LiveScribeProps) {
   const [fullTranscript, setFullTranscript] = useState('')
   const [soapNote, setSoapNote] = useState<SOAPNote | null>(null)
@@ -167,6 +169,12 @@ export function LiveScribe({
 
       const soap = await response.json()
       setSoapNote(soap)
+
+      // Call the callback to send SOAP to parent
+      if (onSOAPGenerated) {
+        onSOAPGenerated(soap)
+      }
+
       console.log('SOAP note generated successfully')
     } catch (error) {
       console.error('Failed to generate SOAP:', error)
