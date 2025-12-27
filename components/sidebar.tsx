@@ -194,14 +194,14 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
                     {item.label}
                   </span>
                   {item.badge && (
-                    <span className="ml-auto w-5 h-5 flex items-center justify-center bg-primary text-primary-foreground text-xs rounded-full">
+                    <span className="ml-auto w-5 h-5 flex items-center justify-center bg-purple-600 text-white text-xs rounded-full">
                       {item.badge}
                     </span>
                   )}
                 </>
               )}
               {isCollapsed && item.badge && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-purple-600 rounded-full" />
               )}
             </button>
           )

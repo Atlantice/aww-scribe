@@ -175,7 +175,7 @@ export function OverviewDashboard({
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-muted-foreground">Sonnet 4.5</span>
-                <button className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors duration-200">
+                <button className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200">
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -214,9 +214,9 @@ export function OverviewDashboard({
                     <button
                       key={index}
                       onClick={() => handleQuickAction(action)}
-                      className="p-4 bg-white dark:bg-gray-900 border border-border rounded-xl hover:shadow-md hover:border-primary/50 transition-all duration-200 text-left group"
+                      className="p-4 bg-white dark:bg-gray-900 border border-border rounded-xl hover:shadow-md hover:border-purple-600/50 transition-all duration-200 text-left group"
                     >
-                      <action.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary mb-2 transition-colors duration-200" />
+                      <action.icon className="w-5 h-5 text-muted-foreground group-hover:text-purple-600 mb-2 transition-colors duration-200" />
                       <div className="text-sm font-medium text-foreground">{action.label}</div>
                     </button>
                   ))}
@@ -276,7 +276,7 @@ export function OverviewDashboard({
               <h3 className="text-sm font-semibold text-foreground">
                 Active Medications ({activeMedications.length})
               </h3>
-              <button className="text-xs text-primary hover:underline flex items-center gap-1">
+              <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
                 View all <ArrowRight className="w-3 h-3" />
               </button>
             </div>
@@ -299,7 +299,7 @@ export function OverviewDashboard({
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground">Upcoming Appointments</h3>
-              <button className="text-xs text-primary hover:underline flex items-center gap-1">
+              <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
                 Schedule <ArrowRight className="w-3 h-3" />
               </button>
             </div>
@@ -379,7 +379,7 @@ export function OverviewDashboard({
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-foreground">Recent Activity</h2>
-            <button className="text-xs text-primary hover:underline flex items-center gap-1">
+            <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
               View all activity <ArrowRight className="w-3 h-3" />
             </button>
           </div>
