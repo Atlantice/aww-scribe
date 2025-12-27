@@ -180,14 +180,14 @@ export function DetailPanel({ activeSection, selectedItem, patientId, onSectionC
               className="space-y-3"
             >
               {/* Subjective */}
-              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900">
-                <div className="px-5 py-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:bg-gradient-to-r dark:from-blue-950/30 dark:to-blue-900/20 border-l-4 border-blue-500">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:border-purple-200 dark:hover:border-purple-900">
+                <div className="px-5 py-3 bg-gradient-to-r from-purple-50 to-purple-100 dark:bg-gradient-to-r dark:from-purple-950/30 dark:to-purple-900/20 border-l-4 border-purple-500">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">[S] SUBJECTIVE</h3>
-                      <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">Chief complaint and history</p>
+                      <p className="text-xs text-purple-700 dark:text-purple-400 mt-1">Chief complaint and history</p>
                     </div>
-                    <button className="px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-blue-100 dark:hover:bg-blue-900/40 flex items-center gap-1 transition-all duration-200">
+                    <button className="px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-purple-100 dark:hover:bg-purple-900/40 flex items-center gap-1 transition-all duration-200">
                       <Edit className="w-3 h-3" />
                       Edit
                     </button>

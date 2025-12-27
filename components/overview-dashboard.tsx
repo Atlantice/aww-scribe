@@ -74,7 +74,7 @@ export function OverviewDashboard({
 
   const getTrendIcon = (trend: string) => {
     if (trend === "up") return <TrendingUp className="w-3 h-3 text-red-500" />
-    if (trend === "down") return <TrendingDown className="w-3 h-3 text-blue-500" />
+    if (trend === "down") return <TrendingDown className="w-3 h-3 text-purple-500" />
     return <Minus className="w-3 h-3 text-gray-400" />
   }
 
@@ -306,7 +306,7 @@ export function OverviewDashboard({
             <div className="space-y-2">
               {upcomingAppointments.map((apt, index) => (
                 <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className={`w-2 h-2 rounded-full mt-1.5 ${apt.confirmed ? "bg-green-500" : "bg-blue-500"}`} />
+                  <div className={`w-2 h-2 rounded-full mt-1.5 ${apt.confirmed ? "bg-green-500" : "bg-purple-500"}`} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-foreground">
                       {apt.date} - {apt.type}
@@ -390,13 +390,13 @@ export function OverviewDashboard({
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
                       activity.type === "soap"
-                        ? "bg-blue-100 dark:bg-blue-900/30"
+                        ? "bg-purple-100 dark:bg-purple-900/30"
                         : activity.type === "medication"
                           ? "bg-green-100 dark:bg-green-900/30"
                           : "bg-purple-100 dark:bg-purple-900/30"
                     }`}
                   >
-                    {activity.type === "soap" && <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+                    {activity.type === "soap" && <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
                     {activity.type === "medication" && <Pill className="w-4 h-4 text-green-600 dark:text-green-400" />}
                     {activity.type === "lab" && (
                       <FlaskConical className="w-4 h-4 text-purple-600 dark:text-purple-400" />

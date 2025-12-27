@@ -54,9 +54,9 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
               >
                 <div className="relative">
                   {/* Highlight glow effect */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl opacity-20 blur-lg" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-600 rounded-2xl opacity-20 blur-lg" />
 
-                  <div className="relative p-6 rounded-xl border-2 border-purple-300 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
+                  <div className="relative p-6 rounded-xl border-2 border-purple-300 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-purple-50 dark:from-purple-900/20 dark:to-purple-900/20">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-purple-100 dark:bg-purple-900/30">
                         <Mic className="w-6 h-6 text-purple-600 dark:text-purple-400" />
@@ -72,7 +72,7 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
 
                         <button
                           onClick={() => setShowLiveScribe(true)}
-                          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+                          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-600 hover:from-purple-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                           <Mic className="w-5 h-5" />
                           Start Ambient Recording

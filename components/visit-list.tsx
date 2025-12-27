@@ -86,7 +86,7 @@ export function VisitList({ activeSection, selectedItem, onItemSelect, selectedP
               <div className={`w-2 h-2 rounded-full mt-1.5 ${
                 appointment.status === 'Completed'
                   ? 'bg-gray-300 dark:bg-gray-600'
-                  : 'bg-blue-500 dark:bg-blue-400'
+                  : 'bg-purple-500 dark:bg-purple-400'
               }`} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
