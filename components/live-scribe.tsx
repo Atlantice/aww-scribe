@@ -9,7 +9,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useScribe } from '@elevenlabs/react'
 import { Mic, Sparkles, AlertCircle, Loader2 } from 'lucide-react'
 
@@ -20,6 +20,7 @@ interface LiveScribeProps {
   patientAge?: string
   patientWeight?: string
   onSOAPGenerated?: (soap: SOAPNote) => void
+  autoStart?: boolean
 }
 
 interface SOAPNote {
@@ -45,6 +46,7 @@ export function LiveScribe({
   patientAge,
   patientWeight,
   onSOAPGenerated,
+  autoStart = false,
 }: LiveScribeProps) {
   const [fullTranscript, setFullTranscript] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -161,6 +163,13 @@ export function LiveScribe({
       )
     }
   }
+
+  // Auto-start recording if autoStart prop is true
+  useEffect(() => {
+    if (autoStart && !scribe.isConnected) {
+      handleStartRecording()
+    }
+  }, [autoStart]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Stop recording and generate SOAP
   const handleStopAndGenerate = async () => {

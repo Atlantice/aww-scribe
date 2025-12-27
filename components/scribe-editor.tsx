@@ -39,6 +39,7 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
               patientBreed="Golden Retriever"
               patientAge="4 years"
               patientWeight="65 lbs"
+              autoStart={true}
               onSOAPGenerated={(soap) => {
                 console.log("SOAP generated:", soap)
               }}
