@@ -22,9 +22,14 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
     setConnectionStartTime(Date.now())
     setRecordingState('expanding')
 
-    // After expansion animation (200ms), show connecting state
+    // After expansion animation (200ms), show connecting state and trigger recording
     setTimeout(() => {
       setRecordingState('connecting')
+
+      // Trigger LiveScribe to start recording immediately
+      setTimeout(() => {
+        liveScribeRef.current?.startRecording()
+      }, 100)
     }, 200)
   }
 
@@ -36,17 +41,9 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
       // Show connecting state for minimum 400ms
       setTimeout(() => {
         setRecordingState('recording')
-        // Trigger LiveScribe to start recording after state transition
-        setTimeout(() => {
-          liveScribeRef.current?.startRecording()
-        }, 100)
       }, minimumDelay - elapsed)
     } else {
       setRecordingState('recording')
-      // Trigger LiveScribe to start recording after state transition
-      setTimeout(() => {
-        liveScribeRef.current?.startRecording()
-      }, 100)
     }
   }
 
