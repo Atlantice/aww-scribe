@@ -326,19 +326,13 @@ export const LiveScribe = forwardRef<
 
       console.log("✅ SOAP note generated, now saving to Firestore...");
 
-      // Save SOAP note to Firestore
+      // Save SOAP note to Firestore (including all clinical workflow fields)
       const saveResponse = await fetch("/api/appointments/save-soap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           appointmentId: currentAppointmentId,
-          soap: {
-            subjective: soap.subjective,
-            objective: soap.objective,
-            assessment: soap.assessment,
-            plan: soap.plan,
-            vitals: soap.vitals,
-          },
+          soap: soap, // Save the entire SOAP object with all fields
         }),
       });
 
