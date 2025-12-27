@@ -162,12 +162,17 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
                     </motion.div>
                   )}
 
-                  {recordingState === 'recording' && (
+                  {(recordingState === 'connecting' || recordingState === 'recording') && (
                     <motion.div
                       key="recording-ui"
                       initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      animate={{ opacity: recordingState === 'recording' ? 1 : 0 }}
                       transition={{ duration: 0.3 }}
+                      style={{
+                        position: recordingState === 'connecting' ? 'absolute' : 'relative',
+                        pointerEvents: recordingState === 'connecting' ? 'none' : 'auto',
+                        visibility: recordingState === 'connecting' ? 'hidden' : 'visible'
+                      }}
                     >
                       <LiveScribe
                         ref={liveScribeRef}
