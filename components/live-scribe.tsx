@@ -388,7 +388,7 @@ export function LiveScribe({
             {scribe.partialTranscript && (
               <p className="text-gray-500 italic leading-relaxed">
                 {scribe.partialTranscript}
-                <span className="inline-block w-0.5 h-4 bg-blue-600 animate-pulse ml-1" />
+                <span className="inline-block w-0.5 h-4 bg-purple-600 animate-pulse ml-1" />
               </p>
             )}
 
@@ -405,7 +405,7 @@ export function LiveScribe({
 
       {/* AI Processing Indicator */}
       {isGenerating && (
-        <div className="flex items-center gap-3 p-5 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
+        <div className="flex items-center gap-3 p-5 bg-gradient-to-r from-purple-50 to-purple-50 rounded-xl border border-purple-200">
           <Sparkles className="w-6 h-6 text-purple-600 animate-pulse" />
           <div>
             <p className="text-sm font-semibold text-purple-900">
