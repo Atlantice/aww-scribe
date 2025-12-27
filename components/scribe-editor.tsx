@@ -262,16 +262,203 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
                       <p className="whitespace-pre-wrap">{generatedSOAP.plan}</p>
                     </div>
                   </div>
+
+                  {/* Problem List / Diagnoses Section */}
+                  {generatedSOAP.diagnoses && generatedSOAP.diagnoses.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.3, duration: 0.2 }}
+                    >
+                      <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-sm">
+                        <div className="px-5 py-3 bg-gradient-to-r from-rose-50 to-rose-100 dark:from-rose-950/30 dark:to-rose-900/20 border-l-4 border-rose-500">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="text-xs font-semibold text-rose-900 dark:text-rose-100 uppercase tracking-wide">PROBLEM LIST</h3>
+                              <p className="text-xs text-rose-700 dark:text-rose-300 mt-0.5">Active diagnoses and conditions</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="p-5">
+                          <div className="space-y-2">
+                            {generatedSOAP.diagnoses.map((dx, idx) => (
+                              <div key={idx} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                  dx.severity === 'severe' ? 'bg-red-500' :
+                                  dx.severity === 'moderate' ? 'bg-amber-500' :
+                                  'bg-green-500'
+                                }`} />
+                                <span className="text-sm text-foreground flex-1">{dx.condition}</span>
+                                {dx.isPrimary && (
+                                  <span className="px-2 py-0.5 rounded text-xs bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300">
+                                    Primary
+                                  </span>
+                                )}
+                                {dx.icdCode && (
+                                  <span className="text-xs text-muted-foreground font-mono">{dx.icdCode}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Medications Section */}
+                  {generatedSOAP.medications && generatedSOAP.medications.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4, duration: 0.2 }}
+                    >
+                      <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-sm">
+                        <div className="px-5 py-3 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 border-l-4 border-indigo-500">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="text-xs font-semibold text-indigo-900 dark:text-indigo-100 uppercase tracking-wide">[Rx] MEDICATIONS</h3>
+                              <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-0.5">Prescribed medications and instructions</p>
+                            </div>
+                            <button className="px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-indigo-100 dark:hover:bg-indigo-900/40 flex items-center gap-1 transition-all duration-200">
+                              <Edit className="w-3 h-3" />
+                              Edit
+                            </button>
+                          </div>
+                        </div>
+                        <div className="p-5 space-y-4">
+                          {generatedSOAP.medications.map((med, idx) => (
+                            <div key={idx} className="flex items-start gap-4 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                              <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
+                                <Pill className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline gap-2 mb-1">
+                                  <span className="text-sm font-semibold text-foreground">{med.name}</span>
+                                  <span className="text-sm text-muted-foreground">{med.dosage}</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+                                  <span className="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-medium">
+                                    {med.frequency}
+                                  </span>
+                                  {med.route && <span>Route: {med.route}</span>}
+                                  <span>{med.duration}</span>
+                                </div>
+                                {med.instructions && (
+                                  <p className="text-xs text-foreground italic">
+                                    Sig: {med.instructions}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Follow-Up Section */}
+                  {generatedSOAP.followUp && generatedSOAP.followUp.required && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5, duration: 0.2 }}
+                    >
+                      <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-950/30 dark:to-cyan-900/20 border border-cyan-200 dark:border-cyan-900 rounded-xl p-5">
+                        <div className="flex items-start gap-3">
+                          <Calendar className="w-5 h-5 text-cyan-600 dark:text-cyan-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="text-sm font-semibold text-cyan-900 dark:text-cyan-100 mb-1">Follow-Up Required</h4>
+                            <p className="text-sm text-cyan-800 dark:text-cyan-200">
+                              Schedule recheck in <span className="font-semibold">{generatedSOAP.followUp.timeframe}</span>
+                            </p>
+                            {generatedSOAP.followUp.reason && (
+                              <p className="text-xs text-cyan-700 dark:text-cyan-300 mt-1">
+                                Reason: {generatedSOAP.followUp.reason}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Provider Attestation Block */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6, duration: 0.2 }}
+                  >
+                    {generatedSOAP.attestation ? (
+                      <div className="bg-gray-50 dark:bg-gray-900/50 border border-border rounded-xl p-5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <span className="text-sm font-bold text-primary">
+                                {generatedSOAP.attestation.signature || generatedSOAP.attestation.provider.split(' ').map(n => n[0]).join('')}
+                              </span>
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold text-foreground">
+                                {generatedSOAP.attestation.provider}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Attested {new Date(generatedSOAP.attestation.timestamp).toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                          <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">
+                            ✓ Attested
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900 rounded-xl p-5">
+                        <div className="flex items-center gap-3">
+                          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                              Awaiting Provider Attestation
+                            </div>
+                            <div className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                              This note must be reviewed and attested before finalizing
+                            </div>
+                          </div>
+                          <button className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors">
+                            Attest Now
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
                 </motion.div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4 border-t border-border">
-                  <button className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200">
-                    Approve & Save
-                  </button>
-                  <button className="px-6 py-2.5 rounded-lg border border-border hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-medium transition-all duration-200">
-                    Edit Note
-                  </button>
+                  {!generatedSOAP.attestation ? (
+                    <>
+                      <button className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                        Review & Attest
+                      </button>
+                      <button className="px-6 py-2.5 rounded-lg border border-border hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-medium transition-all duration-200">
+                        Edit Note
+                      </button>
+                      <button className="px-6 py-2.5 rounded-lg border border-border hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-medium transition-all duration-200">
+                        Save Draft
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="px-6 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-muted-foreground font-medium cursor-not-allowed">
+                        ✓ Attested & Saved
+                      </button>
+                      <button className="px-6 py-2.5 rounded-lg border border-border hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-medium transition-all duration-200">
+                        Print / Export
+                      </button>
+                      <button className="px-6 py-2.5 rounded-lg border border-border hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-medium transition-all duration-200">
+                        Send to Client
+                      </button>
+                    </>
+                  )}
                 </div>
               </motion.div>
             ) : (
