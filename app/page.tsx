@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/sidebar"
 import { VisitList } from "@/components/visit-list"
 import { DetailPanel } from "@/components/detail-panel"
 import { ScribesList } from "@/components/scribes-list"
+import { ScribeEditor } from "@/components/scribe-editor"
 
 export default function AwwScribe() {
   const [activeSection, setActiveSection] = useState("overview")
@@ -13,6 +14,7 @@ export default function AwwScribe() {
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedScribeId, setSelectedScribeId] = useState<string | null>(null)
+  const [isNewScribe, setIsNewScribe] = useState(false)
 
   // Hide middle panel on Overview section
   const showMiddlePanel = activeSection !== "overview" && activeSection !== "scribes"
@@ -23,13 +25,13 @@ export default function AwwScribe() {
       return (
         <ScribesList
           onNewScribe={() => {
-            // Navigate to recording section to start new scribe
-            setActiveSection("recording")
-            setSelectedItem("current-recording")
+            setIsNewScribe(true)
+            setSelectedScribeId(null)
           }}
           onSelectScribe={(scribeId) => {
             setSelectedScribeId(scribeId)
             setSelectedItem(scribeId)
+            setIsNewScribe(false)
           }}
           selectedScribeId={selectedScribeId}
           selectedPatientId={selectedPatient}
@@ -48,6 +50,18 @@ export default function AwwScribe() {
 
   // Determine which detail panel to show
   const renderDetailPanel = () => {
+    // When in scribes section and creating new scribe, show editor
+    if (activeSection === "scribes" && isNewScribe) {
+      return (
+        <ScribeEditor
+          onClose={() => {
+            setIsNewScribe(false)
+          }}
+          patientId={selectedPatient}
+        />
+      )
+    }
+
     // When in scribes section and a scribe is selected, show it in DetailPanel
     if (activeSection === "scribes" && selectedScribeId) {
       return (
