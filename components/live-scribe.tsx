@@ -54,6 +54,7 @@ export function LiveScribe({
   const [currentAppointmentId, setCurrentAppointmentId] = useState<
     string | null
   >(null);
+  const [isConnecting, setIsConnecting] = useState(autoStart);
 
   // Create appointment in Firestore when recording starts
   const createAppointment = async () => {
@@ -116,6 +117,7 @@ export function LiveScribe({
   // Start recording
   const handleStartRecording = async () => {
     try {
+      setIsConnecting(true);
       setError(null);
       setFullTranscript("");
 
@@ -160,8 +162,10 @@ export function LiveScribe({
       });
 
       console.log("✅ Recording started successfully");
+      setIsConnecting(false);
     } catch (error) {
       console.error("Failed to start recording:", error);
+      setIsConnecting(false);
       setError(
         error instanceof Error
           ? error.message
@@ -328,7 +332,19 @@ export function LiveScribe({
 
       {/* Recording Controls */}
       <div className="flex flex-col items-center gap-6 py-12 px-8 bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-sm">
-        {!scribe.isConnected ? (
+        {isConnecting ? (
+          <>
+            {/* Connecting state */}
+            <div className="text-center">
+              <div className="relative inline-block">
+                <Mic className="w-16 h-16 text-purple-600 animate-pulse" />
+              </div>
+              <div className="text-sm text-gray-600 mt-3 font-medium">
+                Connecting to scribe...
+              </div>
+            </div>
+          </>
+        ) : !scribe.isConnected ? (
           <button
             onClick={handleStartRecording}
             disabled={isGenerating}
