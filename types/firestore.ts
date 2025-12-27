@@ -46,6 +46,41 @@ export interface Appointment {
       respiratoryRate?: string
       weight?: string
     }
+    // NEW: Clinical workflow fields
+    medications?: Array<{
+      name: string
+      dosage: string
+      frequency: string
+      duration: string
+      route?: string
+      instructions?: string
+    }>
+    diagnoses?: Array<{
+      condition: string
+      icdCode?: string
+      severity?: 'mild' | 'moderate' | 'severe'
+      isPrimary: boolean
+    }>
+    procedures?: Array<{
+      name: string
+      code?: string
+    }>
+    followUp?: {
+      required: boolean
+      timeframe?: string
+      reason?: string
+    }
+    timestamps?: {
+      examStarted?: Date
+      examCompleted?: Date
+      documented?: Date
+      attested?: Date
+    }
+    attestation?: {
+      provider: string
+      timestamp: Date
+      signature?: string
+    }
   }
 
   transcript?: string

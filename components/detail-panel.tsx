@@ -99,6 +99,13 @@ export function DetailPanel({ activeSection, selectedItem, patientId, onSectionC
           plan: appointment.soap.plan,
           vitals: appointment.soap.vitals,
           appointmentId: appointment.id,
+          // Include new clinical workflow fields if they exist
+          medications: appointment.soap.medications,
+          diagnoses: appointment.soap.diagnoses,
+          procedures: appointment.soap.procedures,
+          followUp: appointment.soap.followUp,
+          timestamps: appointment.soap.timestamps,
+          attestation: appointment.soap.attestation,
         })
       } else {
         setGeneratedSOAP(null)
