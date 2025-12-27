@@ -33,7 +33,7 @@ export function ScribesList({ onNewScribe, onSelectScribe, selectedScribeId, sel
           <h2 className="font-semibold text-lg text-foreground">Scribes</h2>
           <button
             onClick={onNewScribe}
-            className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-200 flex items-center gap-2 text-sm font-medium shadow-sm hover:shadow-md"
+            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-foreground rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 flex items-center gap-2 text-sm font-medium border border-border"
           >
             <Plus className="w-4 h-4" />
             New Scribe

@@ -170,6 +170,14 @@ export function LiveScribe({
     }
   };
 
+  // Auto-start recording if autoStart prop is true
+  useEffect(() => {
+    if (autoStart && !scribe.isConnected) {
+      handleStartRecording();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart]);
+
   // Stop recording and generate SOAP
   const handleStopAndGenerate = async () => {
     console.log("🛑 Stopping recording...");
