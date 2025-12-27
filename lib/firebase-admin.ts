@@ -39,11 +39,15 @@ if (!getApps().length) {
 
 const db = getFirestore()
 
-// Configure Firestore to ignore undefined properties
-db.settings({
-  ignoreUndefinedProperties: true,
-})
-
-console.log('✓ Firestore configured with ignoreUndefinedProperties')
+// Configure Firestore to ignore undefined properties (only call once)
+try {
+  db.settings({
+    ignoreUndefinedProperties: true,
+  })
+  console.log('✓ Firestore configured with ignoreUndefinedProperties')
+} catch (error) {
+  // Settings already configured, ignore error
+  console.log('✓ Firestore already configured')
+}
 
 export const adminDb = db
