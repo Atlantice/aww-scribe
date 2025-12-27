@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { X, Mic, Sparkles } from "lucide-react"
+import { useState } from "react"
+import { X, Sparkles, Edit } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LiveScribe } from "./live-scribe"
 
@@ -10,42 +10,31 @@ interface ScribeEditorProps {
   patientId: string | null
 }
 
-type RecordingState = 'idle' | 'expanding' | 'connecting' | 'recording'
+interface SOAPNote {
+  subjective: string
+  objective: string
+  assessment: string
+  plan: string
+  vitals?: {
+    temperature?: string
+    heartRate?: string
+    respiratoryRate?: string
+    weight?: string
+  }
+  chiefComplaint?: string
+  diagnosis?: string
+  appointmentId?: string
+}
 
 export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
-  const [recordingState, setRecordingState] = useState<RecordingState>('idle')
-  const [connectionStartTime, setConnectionStartTime] = useState<number | null>(null)
-  const [manualContent, setManualContent] = useState("")
-  const liveScribeRef = useRef<{ startRecording: () => void } | null>(null)
+  const [generatedSOAP, setGeneratedSOAP] = useState<SOAPNote | null>(null)
 
-  const handleStartRecording = () => {
-    setConnectionStartTime(Date.now())
-    setRecordingState('expanding')
-
-    // After expansion animation (200ms), show connecting state and trigger recording
-    setTimeout(() => {
-      setRecordingState('connecting')
-
-      // Trigger LiveScribe to start recording immediately
-      setTimeout(() => {
-        liveScribeRef.current?.startRecording()
-      }, 100)
-    }, 200)
+  const handleSOAPGenerated = async (soap: SOAPNote) => {
+    console.log('Received SOAP in ScribeEditor:', soap)
+    setGeneratedSOAP(soap)
   }
 
-  const handleConnectionComplete = () => {
-    const elapsed = Date.now() - (connectionStartTime || 0)
-    const minimumDelay = 400 // ms
-
-    if (elapsed < minimumDelay) {
-      // Show connecting state for minimum 400ms
-      setTimeout(() => {
-        setRecordingState('recording')
-      }, minimumDelay - elapsed)
-    } else {
-      setRecordingState('recording')
-    }
-  }
+  const appointmentDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a]">
@@ -63,168 +52,201 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-4xl mx-auto p-6 space-y-6">
+          {/* Patient Header */}
+          <div className="space-y-2">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-xl font-semibold text-foreground leading-tight">
+                  Luna • {appointmentDate} • Dr. Sarah Chen
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">Golden Retriever • 4 years • 65 lbs</p>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-muted-foreground">
+                Draft
+              </span>
+            </div>
+          </div>
+
+          {/* AI Summary Card - Canary Mail style */}
+          <div className="p-4 rounded-xl bg-gradient-to-br from-[#faf5ff] to-[#f5f3ff] dark:from-[#2e1065] dark:to-[#1e1538] border border-purple-200 dark:border-purple-900">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-[#8b5cf6]" />
+              <h3 className="text-sm font-semibold text-foreground">AI Voice Assistant</h3>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed text-balance">
+              Have a conversation with the AI assistant to document Luna's visit. The assistant will ask follow-up
+              questions and help generate a complete SOAP note from your voice input.
+            </p>
+          </div>
+
+          {/* Live Scribe Component - INTEGRATED */}
+          <LiveScribe
+            patientId={patientId}
+            patientName="Luna"
+            patientBreed="Golden Retriever"
+            patientAge="4 years"
+            patientWeight="65 lbs"
+            onSOAPGenerated={handleSOAPGenerated}
+          />
+
+          {/* ONLY SHOW SOAP IF GENERATED */}
           <AnimatePresence mode="wait">
-            {recordingState === 'idle' && (
+            {generatedSOAP ? (
               <motion.div
-                key="idle"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="mb-6"
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
               >
-                {/* Ambient Recording Section */}
+                {/* Extracted Vitals - Claude-inspired with hover states */}
                 <motion.div
-                  layoutId="recording-container"
-                  className="relative"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1, duration: 0.2 }}
                 >
-                  {/* Highlight glow effect */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-600 rounded-2xl opacity-20 blur-lg" />
-
-                  <div className="relative p-6 rounded-xl border-2 border-purple-300 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-purple-50 dark:from-purple-900/20 dark:to-purple-900/20">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-purple-100 dark:bg-purple-900/30">
-                        <Mic className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Extracted Vitals</h3>
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-900/10 border border-amber-200 dark:border-amber-900/40 transition-all duration-200 hover:shadow-md hover:scale-[1.02] group">
+                      <div className="text-xs font-medium text-amber-900 dark:text-amber-400 mb-2">Temperature</div>
+                      <div className="text-2xl font-bold text-foreground tabular-nums">
+                        {generatedSOAP.vitals?.temperature || '--'}
                       </div>
-
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-foreground mb-2">
-                          Ambient Scribe (Recommended)
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Have a natural conversation with your patient. The AI will listen, transcribe, and generate a structured SOAP note automatically.
-                        </p>
-
-                        <button
-                          onClick={handleStartRecording}
-                          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-600 hover:from-purple-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-                        >
-                          <Mic className="w-5 h-5" />
-                          Start Ambient Recording
-                        </button>
+                    </div>
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-900/10 border border-red-200 dark:border-red-900/40 transition-all duration-200 hover:shadow-md hover:scale-[1.02] group">
+                      <div className="text-xs font-medium text-red-900 dark:text-red-400 mb-2">Heart Rate</div>
+                      <div className="text-2xl font-bold text-foreground tabular-nums">
+                        {generatedSOAP.vitals?.heartRate || '--'}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-sky-50 to-sky-100/50 dark:from-sky-900/20 dark:to-sky-900/10 border border-sky-200 dark:border-sky-900/40 transition-all duration-200 hover:shadow-md hover:scale-[1.02] group">
+                      <div className="text-xs font-medium text-sky-900 dark:text-sky-400 mb-2">Resp. Rate</div>
+                      <div className="text-2xl font-bold text-foreground tabular-nums">
+                        {generatedSOAP.vitals?.respiratoryRate || '--'}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-900/20 dark:to-violet-900/10 border border-violet-200 dark:border-violet-900/40 transition-all duration-200 hover:shadow-md hover:scale-[1.02] group">
+                      <div className="text-xs font-medium text-violet-900 dark:text-violet-400 mb-2">Weight</div>
+                      <div className="text-2xl font-bold text-foreground tabular-nums">
+                        {generatedSOAP.vitals?.weight || '--'}
                       </div>
                     </div>
                   </div>
                 </motion.div>
-              </motion.div>
-            )}
 
-            {(recordingState === 'expanding' || recordingState === 'connecting' || recordingState === 'recording') && (
-              <motion.div
-                key="recording"
-                layoutId="recording-container"
-                initial={false}
-                animate={{
-                  backgroundColor: recordingState === 'expanding'
-                    ? 'rgb(250, 245, 255)' // purple-50
-                    : 'rgb(255, 255, 255)', // white
-                }}
-                transition={{
-                  layout: { duration: 0.3, ease: "easeInOut" },
-                  backgroundColor: { duration: 0.2 }
-                }}
-                className="relative rounded-xl border-2 p-6 mb-6"
-                style={{
-                  borderColor: recordingState === 'expanding'
-                    ? 'rgb(216, 180, 254)' // purple-300
-                    : 'rgb(229, 231, 235)' // gray-200
-                }}
-              >
-                <AnimatePresence mode="wait">
-                  {recordingState === 'connecting' && (
-                    <motion.div
-                      key="connecting"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.2 }}
-                      className="flex flex-col items-center gap-4 py-8"
-                    >
-                      <div className="relative inline-block">
-                        <Mic className="w-16 h-16 text-purple-600 animate-pulse" />
-                        <motion.div
-                          className="absolute inset-0 w-16 h-16 border-4 border-purple-400 rounded-full"
-                          animate={{
-                            scale: [1, 1.3, 1],
-                            opacity: [0.6, 0.2, 0.6]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        />
+                {/* SOAP Note Sections - Clean with colored left border */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.2 }}
+                  className="space-y-3"
+                >
+                  {/* Subjective */}
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:border-purple-200 dark:hover:border-purple-900">
+                    <div className="px-5 py-3 bg-gradient-to-r from-purple-50 to-purple-100 dark:bg-gradient-to-r dark:from-purple-950/30 dark:to-purple-900/20 border-l-4 border-purple-500">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">[S] SUBJECTIVE</h3>
+                          <p className="text-xs text-purple-700 dark:text-purple-400 mt-1">Chief complaint and history</p>
+                        </div>
+                        <button className="px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-purple-100 dark:hover:bg-purple-900/40 flex items-center gap-1 transition-all duration-200">
+                          <Edit className="w-3 h-3" />
+                          Edit
+                        </button>
                       </div>
-                      <div className="text-sm text-gray-600 font-medium">
-                        Connecting to scribe...
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {(recordingState === 'connecting' || recordingState === 'recording') && (
-                    <motion.div
-                      key="recording-ui"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: recordingState === 'recording' ? 1 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      style={{
-                        position: recordingState === 'connecting' ? 'absolute' : 'relative',
-                        pointerEvents: recordingState === 'connecting' ? 'none' : 'auto',
-                        visibility: recordingState === 'connecting' ? 'hidden' : 'visible'
-                      }}
-                    >
-                      <LiveScribe
-                        ref={liveScribeRef}
-                        patientId={patientId || ""}
-                        patientName="Luna"
-                        patientBreed="Golden Retriever"
-                        patientAge="4 years"
-                        patientWeight="65 lbs"
-                        autoStart={false}
-                        onConnectionComplete={handleConnectionComplete}
-                        onSOAPGenerated={(soap) => {
-                          console.log("SOAP generated:", soap)
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Manual Editor Section */}
-          <AnimatePresence>
-            {recordingState === 'idle' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{
-                  opacity: { duration: 0.2 },
-                  height: { duration: 0.3 }
-                }}
-              >
-                <div className="mb-3 flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-foreground">Manual Entry</h3>
-                  <span className="text-xs text-muted-foreground">(Optional)</span>
-                </div>
-
-                <textarea
-                  value={manualContent}
-                  onChange={(e) => setManualContent(e.target.value)}
-                  placeholder="Or type your notes manually here... You can also edit the AI-generated content."
-                  className="w-full min-h-[400px] p-4 bg-white dark:bg-gray-900 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 resize-none font-mono text-sm leading-relaxed"
-                />
-
-                {manualContent && (
-                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                    <Sparkles className="w-3 h-3" />
-                    <span>{manualContent.split(/\s+/).filter(Boolean).length} words</span>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {generatedSOAP.subjective}
+                      </p>
+                    </div>
                   </div>
-                )}
+
+                  {/* Objective */}
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:border-green-200 dark:hover:border-green-900">
+                    <div className="px-5 py-3 bg-gradient-to-r from-green-50 to-green-100 dark:bg-gradient-to-r dark:from-green-950/30 dark:to-green-900/20 border-l-4 border-green-500">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-xs font-semibold text-green-900 dark:text-green-100 uppercase tracking-wide">[O] OBJECTIVE</h3>
+                          <p className="text-xs text-green-700 dark:text-green-400 mt-1">Physical exam and vitals</p>
+                        </div>
+                        <button className="px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-green-100 dark:hover:bg-green-900/40 flex items-center gap-1 transition-all duration-200">
+                          <Edit className="w-3 h-3" />
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-2 text-sm text-foreground leading-relaxed">
+                      <p className="whitespace-pre-wrap">{generatedSOAP.objective}</p>
+                    </div>
+                  </div>
+
+                  {/* Assessment */}
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:border-amber-200 dark:hover:border-amber-900">
+                    <div className="px-5 py-3 bg-gradient-to-r from-amber-50 to-amber-100 dark:bg-gradient-to-r dark:from-amber-950/30 dark:to-amber-900/20 border-l-4 border-amber-500">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-xs font-semibold text-amber-900 dark:text-amber-100 uppercase tracking-wide">[A] ASSESSMENT</h3>
+                          <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">Diagnosis and interpretation</p>
+                        </div>
+                        <button className="px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-amber-100 dark:hover:bg-amber-900/40 flex items-center gap-1 transition-all duration-200">
+                          <Edit className="w-3 h-3" />
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {generatedSOAP.assessment}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Plan */}
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:border-purple-200 dark:hover:border-purple-900">
+                    <div className="px-5 py-3 bg-gradient-to-r from-purple-50 to-purple-100 dark:bg-gradient-to-r dark:from-purple-950/30 dark:to-purple-900/20 border-l-4 border-purple-500">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-xs font-semibold text-purple-900 dark:text-purple-100 uppercase tracking-wide">[P] PLAN</h3>
+                          <p className="text-xs text-purple-700 dark:text-purple-400 mt-1">Treatment and follow-up</p>
+                        </div>
+                        <button className="px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-purple-100 dark:hover:bg-purple-900/40 flex items-center gap-1 transition-all duration-200">
+                          <Edit className="w-3 h-3" />
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-3 text-sm text-foreground">
+                      <p className="whitespace-pre-wrap">{generatedSOAP.plan}</p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4 border-t border-border">
+                  <button className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                    Approve & Save
+                  </button>
+                  <button className="px-6 py-2.5 rounded-lg border border-border hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-medium transition-all duration-200">
+                    Edit Note
+                  </button>
+                </div>
               </motion.div>
+            ) : (
+              // BLANK STATE - Before SOAP is generated
+              <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-4">
+                  <Sparkles className="w-8 h-8 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Ready to Document
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  Click "Start Listening" above to begin documenting this appointment.
+                  The AI will transcribe your conversation and generate a complete SOAP note.
+                </p>
+              </div>
             )}
           </AnimatePresence>
         </div>
