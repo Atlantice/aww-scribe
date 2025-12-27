@@ -133,6 +133,28 @@ Use numbered list format for clarity.
 - If vitals are mentioned, capture exact values
 - If medications are mentioned, include doses and frequencies
 
+**STRUCTURED DATA EXTRACTION:**
+In addition to the SOAP narrative, extract structured data:
+
+**Medications:** From the Plan section, extract each prescribed medication:
+- name: Drug name (e.g., "Carprofen")
+- dosage: Amount per dose (e.g., "75mg")
+- frequency: How often (e.g., "BID" for twice daily, "SID" for once daily, "TID" for three times daily)
+- duration: How long (e.g., "7 days", "2 weeks", "ongoing")
+- route: Administration method (e.g., "PO" for by mouth, "SC" for subcutaneous, "IM" for intramuscular) - optional
+- instructions: Special directions (e.g., "Give with food", "Apply to affected area") - optional
+
+**Diagnoses:** From the Assessment section, extract each diagnosis:
+- condition: Diagnosis or condition name (e.g., "Soft tissue injury, right carpus")
+- severity: "mild", "moderate", or "severe" if indicated
+- isPrimary: true for primary diagnosis, false for secondary/differential
+- icdCode: ICD-10 code if you can confidently infer it (optional)
+
+**Follow-Up:** Extract any follow-up recommendations:
+- required: true if follow-up is explicitly recommended
+- timeframe: When to return (e.g., "1 week", "2-3 weeks", "PRN")
+- reason: Purpose of follow-up (e.g., "Reassess lameness", "Recheck wound healing", "Remove sutures")
+
 **OUTPUT FORMAT:**
 Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks):
 {
@@ -147,8 +169,37 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no code 
     "weight": "string or null"
   },
   "chiefComplaint": "string or null",
-  "diagnosis": "string or null"
+  "diagnosis": "string or null",
+  "medications": [
+    {
+      "name": "string",
+      "dosage": "string",
+      "frequency": "string",
+      "duration": "string",
+      "route": "string or omit",
+      "instructions": "string or omit"
+    }
+  ],
+  "diagnoses": [
+    {
+      "condition": "string",
+      "severity": "mild | moderate | severe or omit",
+      "isPrimary": boolean,
+      "icdCode": "string or omit"
+    }
+  ],
+  "followUp": {
+    "required": boolean,
+    "timeframe": "string or omit if not required",
+    "reason": "string or omit if not required"
+  }
 }
+
+**NOTES:**
+- If no medications are prescribed, return empty array []
+- If no specific diagnoses, return empty array []
+- If no follow-up mentioned, set required to false
+- Use veterinary abbreviations: BID (twice daily), SID (once daily), TID (three times daily), QID (four times daily), PO (by mouth), SC (subcutaneous), IM (intramuscular)
 
 Generate the SOAP note now:`
 

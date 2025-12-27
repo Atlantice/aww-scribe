@@ -38,6 +38,47 @@ interface SOAPNote {
   chiefComplaint?: string;
   diagnosis?: string;
   appointmentId?: string;
+
+  // NEW: Clinical workflow fields
+  medications?: Array<{
+    name: string;
+    dosage: string;
+    frequency: string;  // e.g., "BID" (twice daily)
+    duration: string;   // e.g., "7 days", "2 weeks"
+    route?: string;     // e.g., "PO" (by mouth), "SC" (subcutaneous)
+    instructions?: string;  // e.g., "Give with food"
+  }>;
+
+  diagnoses?: Array<{
+    condition: string;  // e.g., "Soft tissue injury"
+    icdCode?: string;   // e.g., "M79.9" (optional, if extracted)
+    severity?: 'mild' | 'moderate' | 'severe';
+    isPrimary: boolean;
+  }>;
+
+  procedures?: Array<{
+    name: string;       // e.g., "Physical examination", "Radiograph"
+    code?: string;      // e.g., "99213" CPT code (optional)
+  }>;
+
+  followUp?: {
+    required: boolean;
+    timeframe?: string; // e.g., "1 week", "2-3 weeks"
+    reason?: string;    // e.g., "Reassess lameness", "Remove sutures"
+  };
+
+  timestamps?: {
+    examStarted?: Date;
+    examCompleted?: Date;
+    documented?: Date;
+    attested?: Date;
+  };
+
+  attestation?: {
+    provider: string;
+    timestamp: Date;
+    signature?: string; // Provider initials or digital signature
+  };
 }
 
 export const LiveScribe = forwardRef<
