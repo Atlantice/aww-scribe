@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { X, Mic, Sparkles } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { LiveScribe } from "./live-scribe"
 
 interface ScribeEditorProps {
@@ -10,9 +10,45 @@ interface ScribeEditorProps {
   patientId: string | null
 }
 
+type RecordingState = 'idle' | 'expanding' | 'connecting' | 'recording'
+
 export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
-  const [showLiveScribe, setShowLiveScribe] = useState(false)
+  const [recordingState, setRecordingState] = useState<RecordingState>('idle')
+  const [connectionStartTime, setConnectionStartTime] = useState<number | null>(null)
   const [manualContent, setManualContent] = useState("")
+  const liveScribeRef = useRef<{ startRecording: () => void } | null>(null)
+
+  const handleStartRecording = () => {
+    setConnectionStartTime(Date.now())
+    setRecordingState('expanding')
+
+    // After expansion animation (200ms), show connecting state
+    setTimeout(() => {
+      setRecordingState('connecting')
+    }, 200)
+  }
+
+  const handleConnectionComplete = () => {
+    const elapsed = Date.now() - (connectionStartTime || 0)
+    const minimumDelay = 400 // ms
+
+    if (elapsed < minimumDelay) {
+      // Show connecting state for minimum 400ms
+      setTimeout(() => {
+        setRecordingState('recording')
+        // Trigger LiveScribe to start recording after state transition
+        setTimeout(() => {
+          liveScribeRef.current?.startRecording()
+        }, 100)
+      }, minimumDelay - elapsed)
+    } else {
+      setRecordingState('recording')
+      // Trigger LiveScribe to start recording after state transition
+      setTimeout(() => {
+        liveScribeRef.current?.startRecording()
+      }, 100)
+    }
+  }
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a]">
@@ -31,28 +67,21 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-6">
-          {/* Show LiveScribe when recording is active */}
-          {showLiveScribe ? (
-            <LiveScribe
-              patientId={patientId || ""}
-              patientName="Luna"
-              patientBreed="Golden Retriever"
-              patientAge="4 years"
-              patientWeight="65 lbs"
-              autoStart={true}
-              onSOAPGenerated={(soap) => {
-                console.log("SOAP generated:", soap)
-              }}
-            />
-          ) : (
-            <>
-              {/* Ambient Recording Section - Highlighted */}
+          <AnimatePresence mode="wait">
+            {recordingState === 'idle' && (
               <motion.div
+                key="idle"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: -10 }}
+                transition={{ duration: 0.2 }}
                 className="mb-6"
               >
-                <div className="relative">
+                {/* Ambient Recording Section */}
+                <motion.div
+                  layoutId="recording-container"
+                  className="relative"
+                >
                   {/* Highlight glow effect */}
                   <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-600 rounded-2xl opacity-20 blur-lg" />
 
@@ -71,7 +100,7 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
                         </p>
 
                         <button
-                          onClick={() => setShowLiveScribe(true)}
+                          onClick={handleStartRecording}
                           className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-600 hover:from-purple-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                           <Mic className="w-5 h-5" />
@@ -80,14 +109,100 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
+            )}
 
-              {/* Manual Editor Section */}
+            {(recordingState === 'expanding' || recordingState === 'connecting' || recordingState === 'recording') && (
+              <motion.div
+                key="recording"
+                layoutId="recording-container"
+                initial={false}
+                animate={{
+                  backgroundColor: recordingState === 'expanding'
+                    ? 'rgb(250, 245, 255)' // purple-50
+                    : 'rgb(255, 255, 255)', // white
+                }}
+                transition={{
+                  layout: { duration: 0.3, ease: "easeInOut" },
+                  backgroundColor: { duration: 0.2 }
+                }}
+                className="relative rounded-xl border-2 p-6 mb-6"
+                style={{
+                  borderColor: recordingState === 'expanding'
+                    ? 'rgb(216, 180, 254)' // purple-300
+                    : 'rgb(229, 231, 235)' // gray-200
+                }}
+              >
+                <AnimatePresence mode="wait">
+                  {recordingState === 'connecting' && (
+                    <motion.div
+                      key="connecting"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col items-center gap-4 py-8"
+                    >
+                      <div className="relative inline-block">
+                        <Mic className="w-16 h-16 text-purple-600 animate-pulse" />
+                        <motion.div
+                          className="absolute inset-0 w-16 h-16 border-4 border-purple-400 rounded-full"
+                          animate={{
+                            scale: [1, 1.3, 1],
+                            opacity: [0.6, 0.2, 0.6]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        />
+                      </div>
+                      <div className="text-sm text-gray-600 font-medium">
+                        Connecting to scribe...
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {recordingState === 'recording' && (
+                    <motion.div
+                      key="recording-ui"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <LiveScribe
+                        ref={liveScribeRef}
+                        patientId={patientId || ""}
+                        patientName="Luna"
+                        patientBreed="Golden Retriever"
+                        patientAge="4 years"
+                        patientWeight="65 lbs"
+                        autoStart={false}
+                        onConnectionComplete={handleConnectionComplete}
+                        onSOAPGenerated={(soap) => {
+                          console.log("SOAP generated:", soap)
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Manual Editor Section */}
+          <AnimatePresence>
+            {recordingState === 'idle' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{
+                  opacity: { duration: 0.2 },
+                  height: { duration: 0.3 }
+                }}
               >
                 <div className="mb-3 flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-foreground">Manual Entry</h3>
@@ -108,8 +223,8 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
                   </div>
                 )}
               </motion.div>
-            </>
-          )}
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

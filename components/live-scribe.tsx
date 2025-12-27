@@ -9,7 +9,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { useScribe } from "@elevenlabs/react";
 import { Mic, Sparkles, AlertCircle, Loader2 } from "lucide-react";
 
@@ -21,6 +21,7 @@ interface LiveScribeProps {
   patientWeight?: string;
   onSOAPGenerated?: (soap: SOAPNote) => void;
   autoStart?: boolean;
+  onConnectionComplete?: () => void;
 }
 
 interface SOAPNote {
@@ -39,22 +40,33 @@ interface SOAPNote {
   appointmentId?: string;
 }
 
-export function LiveScribe({
-  patientId,
-  patientName,
-  patientBreed,
-  patientAge,
-  patientWeight,
-  onSOAPGenerated,
-  autoStart = false,
-}: LiveScribeProps) {
+export const LiveScribe = forwardRef<
+  { startRecording: () => void },
+  LiveScribeProps
+>(function LiveScribe(
+  {
+    patientId,
+    patientName,
+    patientBreed,
+    patientAge,
+    patientWeight,
+    onSOAPGenerated,
+    autoStart = false,
+    onConnectionComplete,
+  },
+  ref
+) {
   const [fullTranscript, setFullTranscript] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentAppointmentId, setCurrentAppointmentId] = useState<
     string | null
   >(null);
-  const [isConnecting, setIsConnecting] = useState(autoStart);
+
+  // Expose startRecording method to parent via ref
+  useImperativeHandle(ref, () => ({
+    startRecording: handleStartRecording,
+  }));
 
   // Create appointment in Firestore when recording starts
   const createAppointment = async () => {
@@ -117,7 +129,6 @@ export function LiveScribe({
   // Start recording
   const handleStartRecording = async () => {
     try {
-      setIsConnecting(true);
       setError(null);
       setFullTranscript("");
 
@@ -162,10 +173,13 @@ export function LiveScribe({
       });
 
       console.log("✅ Recording started successfully");
-      setIsConnecting(false);
+
+      // Notify parent that connection is complete
+      if (onConnectionComplete) {
+        onConnectionComplete();
+      }
     } catch (error) {
       console.error("Failed to start recording:", error);
-      setIsConnecting(false);
       setError(
         error instanceof Error
           ? error.message
@@ -332,19 +346,7 @@ export function LiveScribe({
 
       {/* Recording Controls */}
       <div className="flex flex-col items-center gap-6 py-12 px-8 bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-sm">
-        {isConnecting ? (
-          <>
-            {/* Connecting state */}
-            <div className="text-center">
-              <div className="relative inline-block">
-                <Mic className="w-16 h-16 text-purple-600 animate-pulse" />
-              </div>
-              <div className="text-sm text-gray-600 mt-3 font-medium">
-                Connecting to scribe...
-              </div>
-            </div>
-          </>
-        ) : !scribe.isConnected ? (
+        {!scribe.isConnected ? (
           <button
             onClick={handleStartRecording}
             disabled={isGenerating}
@@ -443,4 +445,4 @@ export function LiveScribe({
       )}
     </div>
   );
-}
+});
