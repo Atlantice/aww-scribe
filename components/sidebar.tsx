@@ -18,16 +18,37 @@ import {
 } from "lucide-react"
 import { usePatients } from "@/hooks/use-firestore"
 
-const navItems = [
-  { id: "overview", label: "Overview", icon: Home, badge: null },
-  { id: "scribes", label: "Scribes", icon: MessageSquare, badge: null },
-  { id: "recording", label: "Recording", icon: Mic, badge: null },
-  { id: "history", label: "Medical History", icon: FileText, badge: null },
-  { id: "medications", label: "Medications", icon: Pill, badge: 2 },
-  { id: "labs", label: "Lab Results", icon: FlaskConical, badge: 1 },
-  { id: "vaccinations", label: "Vaccinations", icon: Syringe, badge: null },
-  { id: "documents", label: "Documents", icon: FolderOpen, badge: 12 },
-  { id: "billing", label: "Billing", icon: CreditCard, badge: null },
+// Navigation sections with headers (Claude Console inspired)
+const navSections = [
+  {
+    header: "PATIENT",
+    items: [
+      { id: "overview", label: "Overview", icon: Home, badge: null },
+      { id: "history", label: "Medical History", icon: FileText, badge: null },
+    ]
+  },
+  {
+    header: "DOCUMENTATION",
+    items: [
+      { id: "scribes", label: "Scribes", icon: MessageSquare, badge: null },
+      { id: "recording", label: "Recording", icon: Mic, badge: null },
+    ]
+  },
+  {
+    header: "CLINICAL",
+    items: [
+      { id: "medications", label: "Medications", icon: Pill, badge: 2 },
+      { id: "labs", label: "Lab Results", icon: FlaskConical, badge: 1 },
+      { id: "vaccinations", label: "Vaccinations", icon: Syringe, badge: null },
+    ]
+  },
+  {
+    header: "MANAGE",
+    items: [
+      { id: "documents", label: "Documents", icon: FolderOpen, badge: 12 },
+      { id: "billing", label: "Billing", icon: CreditCard, badge: null },
+    ]
+  }
 ]
 
 interface SidebarProps {
@@ -61,10 +82,10 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
   if (loading) {
     return (
       <div className="flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border">
-        <div className="px-4 pt-4 pb-3">
+        <div className="px-5 pt-5 pb-6">
           <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
         </div>
-        <div className="px-3 pb-4">
+        <div className="px-5 pb-4">
           <div className="w-full h-16 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg animate-pulse" />
         </div>
       </div>
@@ -74,10 +95,10 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
   if (error || patients.length === 0) {
     return (
       <div className="flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border">
-        <div className="px-4 pt-4 pb-3">
+        <div className="px-5 pt-5 pb-6">
           <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
         </div>
-        <div className="px-3 pb-4">
+        <div className="px-5 pb-4">
           <div className="p-3 text-sm text-muted-foreground text-center">
             {error ? 'Error loading patients' : 'No patients found'}
           </div>
@@ -90,12 +111,12 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
 
   return (
     <div className={`flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] ${!isCollapsed ? 'border-r border-border' : ''}`}>
-      {/* App Title with Toggle */}
-      <div className="px-4 pt-4 pb-3 flex items-center justify-between">
+      {/* App Title with Toggle - 20px padding, 20px bottom before patient */}
+      <div className="px-5 pt-5 pb-6 flex items-center justify-between">
         {!isCollapsed && <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>}
         <button
           onClick={handleCollapseToggle}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors duration-200"
+          className="p-1.5 hover:bg-purple-100/50 dark:hover:bg-purple-900/20 rounded-md transition-colors duration-200"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isCollapsed ? (
@@ -106,9 +127,9 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
         </button>
       </div>
 
-      {/* Patient Selector - Claude-inspired style */}
+      {/* Patient Selector - 20px horizontal padding */}
       {!isCollapsed && (
-        <div className="px-3 pb-4">
+        <div className="px-5 pb-6">
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -165,57 +186,89 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
         </div>
       )}
 
-      {/* Navigation Items - Claude-inspired design */}
-      <div className="flex-1 overflow-y-auto px-2 space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon
-          const isActive = activeSection === item.id
+      {/* Navigation Sections - Claude Console style with headers and dividers */}
+      <div className="flex-1 overflow-y-auto">
+        {navSections.map((section, sectionIdx) => (
+          <div key={section.header}>
+            {/* Divider before each section (except first) - 20px top margin */}
+            {sectionIdx > 0 && (
+              <div className="mx-5 mt-5 h-px bg-border/30" />
+            )}
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => onSectionChange(item.id)}
-              className={`
-                w-full ${isCollapsed ? 'px-0 justify-center' : 'px-3'} py-2 flex items-center gap-3 rounded-lg text-left
-                transition-all duration-200
-                ${
-                  isActive
-                    ? "bg-gray-100 dark:bg-gray-800 text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-gray-50 dark:hover:bg-gray-900"
-                }
-              `}
-              title={isCollapsed ? item.label : undefined}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? "text-foreground" : ""} ${isCollapsed ? 'mx-auto' : ''}`} />
-              {!isCollapsed && (
-                <>
-                  <span className="flex-1 text-sm font-medium">
-                    {item.label}
-                  </span>
-                  {item.badge && (
-                    <span className="ml-auto w-5 h-5 flex items-center justify-center bg-purple-600 text-white text-xs rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
-                </>
-              )}
-              {isCollapsed && item.badge && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-purple-600 rounded-full" />
-              )}
-            </button>
-          )
-        })}
+            {/* Section Header - 20px top margin, 12px bottom margin, 20px horizontal padding */}
+            {!isCollapsed && (
+              <div className="px-5 pt-5 pb-3">
+                <h2 className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground/70">
+                  {section.header}
+                </h2>
+              </div>
+            )}
+
+            {/* Menu Items - 8-10px vertical spacing */}
+            <div className="px-5 space-y-2">
+              {section.items.map((item) => {
+                const Icon = item.icon
+                const isActive = activeSection === item.id
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => onSectionChange(item.id)}
+                    className={`
+                      w-full flex items-center gap-3 text-left
+                      px-2.5 py-1.5 rounded-md
+                      transition-all duration-[150ms] ease-in-out
+                      ${isCollapsed ? 'justify-center' : ''}
+                      ${
+                        isActive
+                          ? "bg-purple-500/20 text-foreground"
+                          : "text-foreground/80 hover:text-foreground hover:bg-purple-500/10"
+                      }
+                    `}
+                    title={isCollapsed ? item.label : undefined}
+                  >
+                    <Icon className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
+                    {!isCollapsed && (
+                      <>
+                        <span className="flex-1 text-[14px] font-normal leading-[1.5]">
+                          {item.label}
+                        </span>
+                        {item.badge && (
+                          <span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-purple-600 text-white text-[11px] font-medium rounded-full">
+                            {item.badge}
+                          </span>
+                        )}
+                      </>
+                    )}
+                    {isCollapsed && item.badge && (
+                      <span className="absolute top-1 right-1 w-2 h-2 bg-purple-600 rounded-full" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Settings at bottom */}
-      <div className="p-3 border-t border-border">
-        <button
-          className={`w-full ${isCollapsed ? 'px-0 justify-center' : 'px-3'} py-2 flex items-center gap-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-200 text-left`}
-          title={isCollapsed ? "Settings" : undefined}
-        >
-          <Settings className={`w-4 h-4 ${isCollapsed ? 'mx-auto' : ''}`} />
-          {!isCollapsed && <span className="text-sm">Settings</span>}
-        </button>
+      {/* Settings at bottom - Divider above */}
+      <div className="mt-auto">
+        <div className="mx-5 h-px bg-border/30" />
+        <div className="px-5 py-3">
+          <button
+            className={`
+              w-full flex items-center gap-3 text-left
+              px-2.5 py-1.5 rounded-md
+              transition-all duration-[150ms] ease-in-out
+              ${isCollapsed ? 'justify-center' : ''}
+              text-foreground/80 hover:text-foreground hover:bg-purple-500/10
+            `}
+            title={isCollapsed ? "Settings" : undefined}
+          >
+            <Settings className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
+            {!isCollapsed && <span className="text-[14px] font-normal leading-[1.5]">Settings</span>}
+          </button>
+        </div>
       </div>
     </div>
   )
