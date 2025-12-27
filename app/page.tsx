@@ -88,21 +88,36 @@ export default function AwwScribe() {
     <div className="flex h-screen overflow-hidden bg-background">
       <ResizablePanelGroup direction="horizontal">
         {/* Left Sidebar - Responsive to collapse state */}
-        <ResizablePanel
-          defaultSize={sidebarCollapsed ? 4 : 16}
-          minSize={sidebarCollapsed ? 4 : 14}
-          maxSize={sidebarCollapsed ? 4 : 20}
-        >
-          <Sidebar
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            selectedPatient={selectedPatient}
-            onPatientChange={setSelectedPatient}
-            onCollapseChange={setSidebarCollapsed}
-          />
-        </ResizablePanel>
-
-        <ResizableHandle className="w-px bg-border" />
+        {!sidebarCollapsed ? (
+          <>
+            <ResizablePanel
+              defaultSize={16}
+              minSize={14}
+              maxSize={20}
+            >
+              <Sidebar
+                activeSection={activeSection}
+                onSectionChange={setActiveSection}
+                selectedPatient={selectedPatient}
+                onPatientChange={setSelectedPatient}
+                onCollapseChange={setSidebarCollapsed}
+                isCollapsed={sidebarCollapsed}
+              />
+            </ResizablePanel>
+            <ResizableHandle className="w-px bg-border" />
+          </>
+        ) : (
+          <div className="w-16 flex-shrink-0">
+            <Sidebar
+              activeSection={activeSection}
+              onSectionChange={setActiveSection}
+              selectedPatient={selectedPatient}
+              onPatientChange={setSelectedPatient}
+              onCollapseChange={setSidebarCollapsed}
+              isCollapsed={sidebarCollapsed}
+            />
+          </div>
+        )}
 
         {/* Middle Column - Shows Scribes list or Visit list */}
         {(showMiddlePanel || activeSection === "scribes") && (
