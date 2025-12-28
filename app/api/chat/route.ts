@@ -44,7 +44,13 @@ export async function POST(req: Request) {
     }
 
     // Fetch appointment history (last 10 appointments)
-    const appointments = await getPatientAppointments(patientId, 10)
+    const appointmentsRaw = await getPatientAppointments(patientId, 10)
+
+    // Convert Firestore Timestamps to Date objects
+    const appointments = appointmentsRaw.map(apt => ({
+      ...apt,
+      date: apt.date instanceof Date ? apt.date : (apt.date as any)?.toDate?.() || new Date(),
+    }))
 
     // Extract active medications from SOAP notes
     const activeMedications: Array<{
