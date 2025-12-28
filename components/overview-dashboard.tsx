@@ -16,11 +16,10 @@ import {
   ArrowRight,
   AlertCircle,
   DollarSign,
-  Clock,
-  Plus,
   ChevronDown,
   ChevronUp,
 } from "lucide-react"
+import { ChatInterface } from "./chat-interface"
 
 interface OverviewDashboardProps {
   patientName: string
@@ -39,7 +38,6 @@ export function OverviewDashboard({
   onStartRecording,
   onNavigateToSection,
 }: OverviewDashboardProps) {
-  const [chatInput, setChatInput] = useState("")
   const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true)
 
   // Mock data - would come from Firestore in production
@@ -150,37 +148,18 @@ export function OverviewDashboard({
           </p>
         </motion.div>
 
-        {/* Claude-style chat input */}
+        {/* AI Chat Interface */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
         >
-          <div className="p-4">
-            <textarea
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              placeholder={`How can I help ${patientName} today?`}
-              className="w-full min-h-[80px] bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none text-base"
+          {patientId && (
+            <ChatInterface
+              patientId={patientId}
+              patientName={patientName}
             />
-            <div className="flex items-center justify-between pt-3 border-t border-border">
-              <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200">
-                  <Plus className="w-4 h-4 text-muted-foreground" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground">Sonnet 4.5</span>
-                <button className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200">
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
         </motion.div>
 
         {/* Quick Actions - Collapsible */}
