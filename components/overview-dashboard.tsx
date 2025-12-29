@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Mic,
@@ -18,16 +18,16 @@ import {
   DollarSign,
   ChevronDown,
   ChevronUp,
-} from "lucide-react"
-import { ChatInterface } from "./chat-interface"
+} from "lucide-react";
+import { ChatInterface } from "./chat-interface";
 
 interface OverviewDashboardProps {
-  patientName: string
-  patientBreed: string
-  patientAge: string
-  patientId: string | null
-  onStartRecording?: () => void
-  onNavigateToSection?: (section: string) => void
+  patientName: string;
+  patientBreed: string;
+  patientAge: string;
+  patientId: string | null;
+  onStartRecording?: () => void;
+  onNavigateToSection?: (section: string) => void;
 }
 
 export function OverviewDashboard({
@@ -38,7 +38,7 @@ export function OverviewDashboard({
   onStartRecording,
   onNavigateToSection,
 }: OverviewDashboardProps) {
-  const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true)
+  const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true);
 
   // Mock data - would come from Firestore in production
   const latestVitals = {
@@ -47,34 +47,72 @@ export function OverviewDashboard({
     respRate: { value: "24/min", trend: "normal", normal: "15-30" },
     weight: { value: "65 lbs", trend: "normal", normal: "60-75" },
     date: "Dec 26, 2025",
-  }
+  };
 
   const activeMedications = [
     { name: "Carprofen 75mg", frequency: "BID", remaining: "4 days remaining" },
-    { name: "Heartgard Plus", frequency: "Monthly", remaining: "Due in 12 days" },
-  ]
+    {
+      name: "Heartgard Plus",
+      frequency: "Monthly",
+      remaining: "Due in 12 days",
+    },
+  ];
 
   const upcomingAppointments = [
-    { date: "Dec 31, 2025", type: "Follow-up", vet: "Dr. Sarah Chen", confirmed: true },
-    { date: "Jan 15, 2026", type: "Wellness Exam", vet: "Dr. Sarah Chen", confirmed: false },
-  ]
+    {
+      date: "Dec 31, 2025",
+      type: "Follow-up",
+      vet: "Dr. Sarah Chen",
+      confirmed: true,
+    },
+    {
+      date: "Jan 15, 2026",
+      type: "Wellness Exam",
+      vet: "Dr. Sarah Chen",
+      confirmed: false,
+    },
+  ];
 
   const outstandingItems = [
-    { type: "lab", text: "Lab results pending (CBC from Dec 24)", urgent: true },
-    { type: "billing", text: "Invoice #1234 - $233.00 (Dec 26)", urgent: false },
-  ]
+    {
+      type: "lab",
+      text: "Lab results pending (CBC from Dec 24)",
+      urgent: true,
+    },
+    {
+      type: "billing",
+      text: "Invoice #1234 - $233.00 (Dec 26)",
+      urgent: false,
+    },
+  ];
 
   const recentActivity = [
-    { date: "Dec 26, 2025", type: "soap", title: "SOAP note created", detail: "Sick Visit - Leg lameness" },
-    { date: "Dec 26, 2025", type: "medication", title: "Medication prescribed", detail: "Carprofen 75mg BID × 7 days" },
-    { date: "Dec 24, 2025", type: "lab", title: "Lab ordered", detail: "CBC, Chemistry panel" },
-  ]
+    {
+      date: "Dec 26, 2025",
+      type: "soap",
+      title: "SOAP note created",
+      detail: "Sick Visit - Leg lameness",
+    },
+    {
+      date: "Dec 26, 2025",
+      type: "medication",
+      title: "Medication prescribed",
+      detail: "Carprofen 75mg BID × 7 days",
+    },
+    {
+      date: "Dec 24, 2025",
+      type: "lab",
+      title: "Lab ordered",
+      detail: "CBC, Chemistry panel",
+    },
+  ];
 
   const getTrendIcon = (trend: string) => {
-    if (trend === "up") return <TrendingUp className="w-3 h-3 text-red-500" />
-    if (trend === "down") return <TrendingDown className="w-3 h-3 text-purple-500" />
-    return <Minus className="w-3 h-3 text-gray-400" />
-  }
+    if (trend === "up") return <TrendingUp className="w-3 h-3 text-red-500" />;
+    if (trend === "down")
+      return <TrendingDown className="w-3 h-3 text-purple-500" />;
+    return <Minus className="w-3 h-3 text-gray-400" />;
+  };
 
   const quickActions = [
     {
@@ -82,19 +120,19 @@ export function OverviewDashboard({
       label: "Start Recording",
       color: "primary",
       onClick: onStartRecording,
-      section: "recording"
+      section: "recording",
     },
     {
       icon: Pill,
       label: "Add Medication",
       color: "green",
-      section: "medications"
+      section: "medications",
     },
     {
       icon: FlaskConical,
       label: "View Lab Results",
       color: "blue",
-      section: "labs"
+      section: "labs",
     },
     {
       icon: Calendar,
@@ -102,14 +140,14 @@ export function OverviewDashboard({
       color: "purple",
       onClick: () => {
         // Would open scheduling modal
-        console.log("Schedule appointment")
-      }
+        console.log("Schedule appointment");
+      },
     },
     {
       icon: FileText,
       label: "Generate Report",
       color: "amber",
-      section: "documents"
+      section: "documents",
     },
     {
       icon: MessageCircle,
@@ -117,23 +155,23 @@ export function OverviewDashboard({
       color: "pink",
       onClick: () => {
         // Would activate chat
-        console.log("Ask about patient")
-      }
+        console.log("Ask about patient");
+      },
     },
-  ]
+  ];
 
-  const handleQuickAction = (action: typeof quickActions[0]) => {
+  const handleQuickAction = (action: (typeof quickActions)[0]) => {
     if (action.onClick) {
-      action.onClick()
+      action.onClick();
     } else if (action.section && onNavigateToSection) {
-      onNavigateToSection(action.section)
+      onNavigateToSection(action.section);
     }
-  }
+  };
 
   return (
     <div className="h-full overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-950/50 dark:to-gray-900">
       {/* Hero Section - Chat Interface */}
-      <div className="max-w-5xl mx-auto px-6 pt-6 pb-32">
+      <div className="max-w-5xl mx-auto px-6 pt-6 pb-16">
         {/* Header with pet greeting */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -143,7 +181,9 @@ export function OverviewDashboard({
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30 mb-4">
             <span className="text-3xl">🐕</span>
           </div>
-          <h1 className="text-3xl font-semibold text-foreground mb-2">Hello {patientName}</h1>
+          <h1 className="text-3xl font-semibold text-foreground mb-2">
+            Hello {patientName}
+          </h1>
           <p className="text-muted-foreground">
             {patientBreed} • {patientAge}
           </p>
@@ -156,10 +196,7 @@ export function OverviewDashboard({
           transition={{ delay: 0.1 }}
         >
           {patientId && (
-            <ChatInterface
-              patientId={patientId}
-              patientName={patientName}
-            />
+            <ChatInterface patientId={patientId} patientName={patientName} />
           )}
         </motion.div>
       </div>
@@ -167,242 +204,297 @@ export function OverviewDashboard({
       {/* Secondary Content - Scrollable Details */}
       <div className="bg-gray-50/50 dark:bg-gray-900/50">
         <div className="max-w-5xl mx-auto px-6 pt-16 pb-6 space-y-6">
-        {/* Quick Actions - Collapsible */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <button
-            onClick={() => setIsQuickActionsExpanded(!isQuickActionsExpanded)}
-            className="flex items-center justify-between w-full mb-3 group"
+          {/* Quick Actions - Collapsible */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
-            {isQuickActionsExpanded ? (
-              <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
-            )}
-          </button>
+            <button
+              onClick={() => setIsQuickActionsExpanded(!isQuickActionsExpanded)}
+              className="flex items-center justify-between w-full mb-3 group"
+            >
+              <h2 className="text-sm font-semibold text-foreground">
+                Quick Actions
+              </h2>
+              {isQuickActionsExpanded ? (
+                <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+              )}
+            </button>
 
-          <AnimatePresence>
-            {isQuickActionsExpanded && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {quickActions.map((action, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleQuickAction(action)}
-                      className="p-4 bg-white dark:bg-gray-900 border border-border rounded-xl hover:shadow-md hover:border-purple-600/50 transition-all duration-200 text-left group"
-                    >
-                      <action.icon className="w-5 h-5 text-muted-foreground group-hover:text-purple-600 mb-2 transition-colors duration-200" />
-                      <div className="text-sm font-medium text-foreground">{action.label}</div>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Health Snapshot */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white dark:bg-gray-900 border border-border rounded-xl p-6 space-y-6"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-foreground">Latest Vitals</h2>
-              <span className="text-xs text-muted-foreground">{latestVitals.date}</span>
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-900/10 border border-amber-200 dark:border-amber-900/40">
-                <div className="text-xs font-medium text-amber-900 dark:text-amber-400 mb-1">Temp</div>
-                <div className="text-lg font-bold text-foreground">{latestVitals.temperature.value}</div>
-                <div className="flex items-center gap-1 mt-1">
-                  {getTrendIcon(latestVitals.temperature.trend)}
-                </div>
-              </div>
-              <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-900/10 border border-red-200 dark:border-red-900/40">
-                <div className="text-xs font-medium text-red-900 dark:text-red-400 mb-1">HR</div>
-                <div className="text-lg font-bold text-foreground">{latestVitals.heartRate.value}</div>
-                <div className="flex items-center gap-1 mt-1">
-                  {getTrendIcon(latestVitals.heartRate.trend)}
-                </div>
-              </div>
-              <div className="p-4 rounded-xl bg-gradient-to-br from-sky-50 to-sky-100/50 dark:from-sky-900/20 dark:to-sky-900/10 border border-sky-200 dark:border-sky-900/40">
-                <div className="text-xs font-medium text-sky-900 dark:text-sky-400 mb-1">RR</div>
-                <div className="text-lg font-bold text-foreground">{latestVitals.respRate.value}</div>
-                <div className="flex items-center gap-1 mt-1">
-                  {getTrendIcon(latestVitals.respRate.trend)}
-                </div>
-              </div>
-              <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-900/20 dark:to-violet-900/10 border border-violet-200 dark:border-violet-900/40">
-                <div className="text-xs font-medium text-violet-900 dark:text-violet-400 mb-1">Weight</div>
-                <div className="text-lg font-bold text-foreground">{latestVitals.weight.value}</div>
-                <div className="flex items-center gap-1 mt-1">
-                  {getTrendIcon(latestVitals.weight.trend)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Medications */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                Active Medications ({activeMedications.length})
-              </h3>
-              <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
-                View all <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-            <div className="space-y-2">
-              {activeMedications.map((med, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground">
-                      {med.name} {med.frequency}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{med.remaining}</div>
+            <AnimatePresence>
+              {isQuickActionsExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {quickActions.map((action, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleQuickAction(action)}
+                        className="p-4 bg-white dark:bg-gray-900 border border-border rounded-xl hover:shadow-md hover:border-purple-600/50 transition-all duration-200 text-left group"
+                      >
+                        <action.icon className="w-5 h-5 text-muted-foreground group-hover:text-purple-600 mb-2 transition-colors duration-200" />
+                        <div className="text-sm font-medium text-foreground">
+                          {action.label}
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
-          {/* Upcoming Appointments */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">Upcoming Appointments</h3>
-              <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
-                Schedule <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-            <div className="space-y-2">
-              {upcomingAppointments.map((apt, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className={`w-2 h-2 rounded-full mt-1.5 ${apt.confirmed ? "bg-green-500" : "bg-purple-500"}`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground">
-                      {apt.date} - {apt.type}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{apt.vet}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Outstanding Items */}
-          {outstandingItems.length > 0 && (
+          {/* Health Snapshot */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white dark:bg-gray-900 border border-border rounded-xl p-6 space-y-6"
+          >
             <div>
-              <h3 className="text-sm font-semibold text-foreground mb-3">
-                Outstanding Items ({outstandingItems.length})
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-foreground">
+                  Latest Vitals
+                </h2>
+                <span className="text-xs text-muted-foreground">
+                  {latestVitals.date}
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-900/10 border border-amber-200 dark:border-amber-900/40">
+                  <div className="text-xs font-medium text-amber-900 dark:text-amber-400 mb-1">
+                    Temp
+                  </div>
+                  <div className="text-lg font-bold text-foreground">
+                    {latestVitals.temperature.value}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    {getTrendIcon(latestVitals.temperature.trend)}
+                  </div>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-900/10 border border-red-200 dark:border-red-900/40">
+                  <div className="text-xs font-medium text-red-900 dark:text-red-400 mb-1">
+                    HR
+                  </div>
+                  <div className="text-lg font-bold text-foreground">
+                    {latestVitals.heartRate.value}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    {getTrendIcon(latestVitals.heartRate.trend)}
+                  </div>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-sky-50 to-sky-100/50 dark:from-sky-900/20 dark:to-sky-900/10 border border-sky-200 dark:border-sky-900/40">
+                  <div className="text-xs font-medium text-sky-900 dark:text-sky-400 mb-1">
+                    RR
+                  </div>
+                  <div className="text-lg font-bold text-foreground">
+                    {latestVitals.respRate.value}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    {getTrendIcon(latestVitals.respRate.trend)}
+                  </div>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-900/20 dark:to-violet-900/10 border border-violet-200 dark:border-violet-900/40">
+                  <div className="text-xs font-medium text-violet-900 dark:text-violet-400 mb-1">
+                    Weight
+                  </div>
+                  <div className="text-lg font-bold text-foreground">
+                    {latestVitals.weight.value}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    {getTrendIcon(latestVitals.weight.trend)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Medications */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Active Medications ({activeMedications.length})
+                </h3>
+                <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
+                  View all <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
               <div className="space-y-2">
-                {outstandingItems.map((item, index) => (
+                {activeMedications.map((med, index) => (
                   <div
                     key={index}
-                    className={`flex items-start gap-3 p-3 rounded-lg ${
-                      item.urgent
-                        ? "bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/40"
-                        : "bg-gray-50 dark:bg-gray-800/50"
-                    }`}
+                    className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
                   >
-                    {item.type === "lab" ? (
-                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5" />
-                    ) : (
-                      <DollarSign className="w-4 h-4 text-muted-foreground mt-0.5" />
-                    )}
-                    <div className="text-sm text-foreground">{item.text}</div>
+                    <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground">
+                        {med.name} {med.frequency}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {med.remaining}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-          )}
-        </motion.div>
 
-        {/* AI Clinical Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-900/10 border border-purple-200 dark:border-purple-900/40 rounded-xl p-6"
-        >
-          <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+            {/* Upcoming Appointments */}
             <div>
-              <h3 className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
-                AI Clinical Summary
-              </h3>
-              <p className="text-sm text-purple-900/80 dark:text-purple-100/80 leading-relaxed">
-                {patientName} is a generally healthy {patientAge} {patientBreed} currently recovering from a right
-                front leg sprain sustained during play. Recent vital trends show slight elevation in temperature
-                (101.8°F vs normal 101.5°F) consistent with mild inflammation. Currently on NSAID therapy with good
-                response. No concerning patterns identified in recent visit history.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Recent Activity */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white dark:bg-gray-900 border border-border rounded-xl p-6"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-foreground">Recent Activity</h2>
-            <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
-              View all activity <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-          <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="flex flex-col items-center">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Upcoming Appointments
+                </h3>
+                <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
+                  Schedule <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {upcomingAppointments.map((apt, index) => (
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      activity.type === "soap"
-                        ? "bg-purple-100 dark:bg-purple-900/30"
-                        : activity.type === "medication"
-                          ? "bg-green-100 dark:bg-green-900/30"
-                          : "bg-purple-100 dark:bg-purple-900/30"
-                    }`}
+                    key={index}
+                    className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
                   >
-                    {activity.type === "soap" && <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
-                    {activity.type === "medication" && <Pill className="w-4 h-4 text-green-600 dark:text-green-400" />}
-                    {activity.type === "lab" && (
-                      <FlaskConical className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    )}
+                    <div
+                      className={`w-2 h-2 rounded-full mt-1.5 ${
+                        apt.confirmed ? "bg-green-500" : "bg-purple-500"
+                      }`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground">
+                        {apt.date} - {apt.type}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {apt.vet}
+                      </div>
+                    </div>
                   </div>
-                  {index < recentActivity.length - 1 && (
-                    <div className="w-px h-8 bg-border mt-2" />
-                  )}
-                </div>
-                <div className="flex-1 pb-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-foreground">{activity.title}</span>
-                    <span className="text-xs text-muted-foreground">{activity.date}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{activity.detail}</p>
+                ))}
+              </div>
+            </div>
+
+            {/* Outstanding Items */}
+            {outstandingItems.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">
+                  Outstanding Items ({outstandingItems.length})
+                </h3>
+                <div className="space-y-2">
+                  {outstandingItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-start gap-3 p-3 rounded-lg ${
+                        item.urgent
+                          ? "bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/40"
+                          : "bg-gray-50 dark:bg-gray-800/50"
+                      }`}
+                    >
+                      {item.type === "lab" ? (
+                        <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5" />
+                      ) : (
+                        <DollarSign className="w-4 h-4 text-muted-foreground mt-0.5" />
+                      )}
+                      <div className="text-sm text-foreground">{item.text}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </motion.div>
+            )}
+          </motion.div>
+
+          {/* AI Clinical Summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-900/10 border border-purple-200 dark:border-purple-900/40 rounded-xl p-6"
+          >
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                  AI Clinical Summary
+                </h3>
+                <p className="text-sm text-purple-900/80 dark:text-purple-100/80 leading-relaxed">
+                  {patientName} is a generally healthy {patientAge}{" "}
+                  {patientBreed} currently recovering from a right front leg
+                  sprain sustained during play. Recent vital trends show slight
+                  elevation in temperature (101.8°F vs normal 101.5°F)
+                  consistent with mild inflammation. Currently on NSAID therapy
+                  with good response. No concerning patterns identified in
+                  recent visit history.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Recent Activity */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white dark:bg-gray-900 border border-border rounded-xl p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-foreground">
+                Recent Activity
+              </h2>
+              <button className="text-xs text-purple-600 hover:underline flex items-center gap-1">
+                View all activity <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-start gap-4">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        activity.type === "soap"
+                          ? "bg-purple-100 dark:bg-purple-900/30"
+                          : activity.type === "medication"
+                          ? "bg-green-100 dark:bg-green-900/30"
+                          : "bg-purple-100 dark:bg-purple-900/30"
+                      }`}
+                    >
+                      {activity.type === "soap" && (
+                        <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      )}
+                      {activity.type === "medication" && (
+                        <Pill className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      )}
+                      {activity.type === "lab" && (
+                        <FlaskConical className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      )}
+                    </div>
+                    {index < recentActivity.length - 1 && (
+                      <div className="w-px h-8 bg-border mt-2" />
+                    )}
+                  </div>
+                  <div className="flex-1 pb-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-foreground">
+                        {activity.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {activity.date}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {activity.detail}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
-  )
+  );
 }
