@@ -132,7 +132,8 @@ export function OverviewDashboard({
 
   return (
     <div className="h-full overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-950/50 dark:to-gray-900">
-      <div className="max-w-5xl mx-auto p-6 space-y-6">
+      {/* Hero Section - Chat Interface */}
+      <div className="max-w-5xl mx-auto px-6 pt-6 pb-32">
         {/* Header with pet greeting */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -148,7 +149,7 @@ export function OverviewDashboard({
           </p>
         </motion.div>
 
-        {/* AI Chat Interface */}
+        {/* AI Chat Interface - Hero */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -161,7 +162,11 @@ export function OverviewDashboard({
             />
           )}
         </motion.div>
+      </div>
 
+      {/* Secondary Content - Scrollable Details */}
+      <div className="bg-gray-50/50 dark:bg-gray-900/50">
+        <div className="max-w-5xl mx-auto px-6 pt-16 pb-6 space-y-6">
         {/* Quick Actions - Collapsible */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -396,6 +401,7 @@ export function OverviewDashboard({
             ))}
           </div>
         </motion.div>
+        </div>
       </div>
     </div>
   )
