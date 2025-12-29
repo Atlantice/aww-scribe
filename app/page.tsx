@@ -7,6 +7,11 @@ import { VisitList } from "@/components/visit-list"
 import { DetailPanel } from "@/components/detail-panel"
 import { ScribesList } from "@/components/scribes-list"
 import { ScribeEditor } from "@/components/scribe-editor"
+import { MedicalHistoryScreen } from "@/components/medical-history-screen"
+import { LabResultsScreen } from "@/components/lab-results-screen"
+import { VaccinationsScreen } from "@/components/vaccinations-screen"
+import { DocumentsScreen } from "@/components/documents-screen"
+import { BillingsScreen } from "@/components/billings-screen"
 
 export default function AwwScribe() {
   const [activeSection, setActiveSection] = useState("overview")
@@ -15,9 +20,28 @@ export default function AwwScribe() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedScribeId, setSelectedScribeId] = useState<string | null>(null)
   const [isNewScribe, setIsNewScribe] = useState(false)
+  const [sidebarStateBeforeFullScreen, setSidebarStateBeforeFullScreen] = useState<boolean | null>(null)
 
-  // Hide middle panel on Overview section
-  const showMiddlePanel = activeSection !== "overview" && activeSection !== "scribes"
+  // Handle chat full-screen mode - auto-collapse sidebar
+  const handleChatFullScreenChange = (isFullScreen: boolean) => {
+    if (isFullScreen) {
+      // Save current sidebar state and collapse it
+      setSidebarStateBeforeFullScreen(sidebarCollapsed)
+      if (!sidebarCollapsed) {
+        setSidebarCollapsed(true)
+      }
+    } else {
+      // Restore previous sidebar state
+      if (sidebarStateBeforeFullScreen !== null) {
+        setSidebarCollapsed(sidebarStateBeforeFullScreen)
+        setSidebarStateBeforeFullScreen(null)
+      }
+    }
+  }
+
+  // Hide middle panel on Overview section and skeleton screens
+  const skeletonSections = ["history", "labs", "vaccinations", "documents", "billing"]
+  const showMiddlePanel = activeSection !== "overview" && activeSection !== "scribes" && !skeletonSections.includes(activeSection)
 
   // Determine which middle panel to show
   const renderMiddlePanel = () => {
@@ -50,6 +74,23 @@ export default function AwwScribe() {
 
   // Determine which detail panel to show
   const renderDetailPanel = () => {
+    // Show skeleton screens
+    if (activeSection === "history") {
+      return <MedicalHistoryScreen selectedPatientId={selectedPatient} />
+    }
+    if (activeSection === "labs") {
+      return <LabResultsScreen selectedPatientId={selectedPatient} />
+    }
+    if (activeSection === "vaccinations") {
+      return <VaccinationsScreen selectedPatientId={selectedPatient} />
+    }
+    if (activeSection === "documents") {
+      return <DocumentsScreen selectedPatientId={selectedPatient} />
+    }
+    if (activeSection === "billing") {
+      return <BillingsScreen selectedPatientId={selectedPatient} />
+    }
+
     // When in scribes section and creating new scribe, show editor
     if (activeSection === "scribes" && isNewScribe) {
       return (
@@ -70,6 +111,7 @@ export default function AwwScribe() {
           selectedItem={selectedScribeId}
           patientId={selectedPatient}
           onSectionChange={setActiveSection}
+          onChatFullScreenChange={handleChatFullScreenChange}
         />
       )
     }
@@ -80,6 +122,7 @@ export default function AwwScribe() {
         selectedItem={selectedItem}
         patientId={selectedPatient}
         onSectionChange={setActiveSection}
+        onChatFullScreenChange={handleChatFullScreenChange}
       />
     )
   }
@@ -135,6 +178,7 @@ export default function AwwScribe() {
           defaultSize={
             activeSection === "overview" ? 84 :
             activeSection === "scribes" ? 60 :
+            skeletonSections.includes(activeSection) ? 84 :
             showMiddlePanel ? 60 : 84
           }
           minSize={45}
