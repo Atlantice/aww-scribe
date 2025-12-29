@@ -21,6 +21,7 @@ interface DetailPanelProps {
   selectedItem: string;
   patientId: string | null;
   onSectionChange?: (section: string) => void;
+  onChatFullScreenChange?: (isFullScreen: boolean) => void;
 }
 
 interface SOAPNote {
@@ -85,6 +86,7 @@ export function DetailPanel({
   selectedItem,
   patientId,
   onSectionChange,
+  onChatFullScreenChange,
 }: DetailPanelProps) {
   const [generatedSOAP, setGeneratedSOAP] = useState<SOAPNote | null>(null);
   const [currentAppointment, setCurrentAppointment] =
@@ -743,7 +745,7 @@ export function DetailPanel({
     </div>
   );
 
-  // Show overview dashboard when Overview section is active
+  // Check activeSection first to prioritize section navigation over selectedItem
   if (activeSection === "overview") {
     return (
       <OverviewDashboard
@@ -752,20 +754,44 @@ export function DetailPanel({
         patientAge="4 years"
         patientId={patientId}
         onStartRecording={() => {
-          onSectionChange?.("recording");
+          onSectionChange?.("scribes");
         }}
         onNavigateToSection={onSectionChange}
+        onChatFullScreenChange={onChatFullScreenChange}
       />
     );
-  }
-
-  if (selectedItem === "current-recording" || activeSection === "recording") {
-    return renderRecordingView();
   }
 
   if (activeSection === "medications") {
     return renderMedicationView();
   }
 
-  return renderRecordingView();
+  if (activeSection === "scribes") {
+    // Show the latest scribe if available, otherwise show new scribe screen
+    if (appointments && appointments.length > 0) {
+      const latestAppointment = appointments[0];
+      return renderRecordingView();
+    }
+    // If no scribes exist, show new scribe screen (renderRecordingView without any appointment loaded)
+    return renderRecordingView();
+  }
+
+  if (selectedItem === "current-recording" || activeSection === "recording") {
+    return renderRecordingView();
+  }
+
+  // For labs, vaccinations, and other unimplemented sections, show under construction
+  return (
+    <div className="h-full flex items-center justify-center p-6">
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 mx-auto rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+          <AlertCircle className="w-8 h-8 text-purple-600" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Under Construction</h3>
+          <p className="text-sm text-muted-foreground">This section is coming soon.</p>
+        </div>
+      </div>
+    </div>
+  );
 }
