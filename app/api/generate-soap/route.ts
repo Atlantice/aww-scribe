@@ -223,8 +223,13 @@ Generate the SOAP note now:`
 
       soapNote = JSON.parse(cleanedText)
 
-      // Validate required fields
-      if (!soapNote.subjective || !soapNote.objective || !soapNote.assessment || !soapNote.plan) {
+      // Validate required fields exist (can be empty strings for minimal transcripts)
+      if (
+        typeof soapNote.subjective !== 'string' ||
+        typeof soapNote.objective !== 'string' ||
+        typeof soapNote.assessment !== 'string' ||
+        typeof soapNote.plan !== 'string'
+      ) {
         throw new Error('Invalid SOAP note structure')
       }
     } catch (parseError) {
