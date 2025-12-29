@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
   Loader2,
@@ -14,6 +15,8 @@ import {
 interface ChatInterfaceProps {
   patientId: string;
   patientName: string;
+  onFullScreenChange?: (isFullScreen: boolean) => void;
+  triggerFullScreen?: boolean; // External control to open full-screen
 }
 
 interface Message {
@@ -53,7 +56,12 @@ const CATEGORY_QUESTIONS: Record<string, string[]> = {
   ],
 };
 
-export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
+export function ChatInterface({
+  patientId,
+  patientName,
+  onFullScreenChange,
+  triggerFullScreen,
+}: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +81,32 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
     scrollToBottom();
   }, [messages]);
 
+  // Notify parent when full-screen state changes
+  useEffect(() => {
+    onFullScreenChange?.(isFullView);
+  }, [isFullView, onFullScreenChange]);
+
+  // ESC key to exit full-screen mode
+  useEffect(() => {
+    if (!isFullView) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsFullView(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isFullView]);
+
+  // External trigger to enter full-screen mode
+  useEffect(() => {
+    if (triggerFullScreen) {
+      setIsFullView(true);
+    }
+  }, [triggerFullScreen]);
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -88,6 +122,9 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
     setIsLoading(true);
     setError(null);
     setSelectedCategory(null); // Close category suggestions
+
+    // Enter full-screen mode when sending a message
+    setIsFullView(true);
 
     try {
       const response = await fetch("/api/chat", {
@@ -206,10 +243,16 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
     }
   };
 
-  // Full-view mode: render as full-screen modal
+  // Full-view mode: render as full-screen modal (leaves space for collapsed sidebar)
   if (isFullView) {
     return (
-      <div className="fixed inset-0 z-50 bg-white dark:bg-gray-950 flex flex-col">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="fixed inset-y-0 right-0 left-16 z-40 bg-white dark:bg-gray-950 flex flex-col"
+      >
         {/* Header with close button */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <h2 className="text-lg font-semibold">{patientName} - AI Assistant</h2>
@@ -222,36 +265,45 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
         </div>
 
         {/* Messages area - scrollable */}
-        <div className="flex-1 overflow-y-auto px-6 py-6">
-          <div className="max-w-3xl mx-auto space-y-4">
+        <div className="flex-1 overflow-y-auto px-8 md:px-16 py-6">
+          <div className="max-w-2xl mx-auto space-y-6">
             {messages.map((msg) => (
-              <div
+              <motion.div
                 key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
                 className={`flex ${
                   msg.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                <div
-                  className={`max-w-[80%] rounded-lg p-4 ${
-                    msg.role === "user"
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-foreground"
-                  }`}
-                >
-                  <p className="text-base whitespace-pre-wrap">{msg.content}</p>
-                  <span className="text-xs opacity-70 mt-2 block">
-                    {msg.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
+                {msg.role === "user" ? (
+                  <div className="max-w-[80%] rounded-2xl p-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm">
+                    <p className="text-base whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    <span className="text-xs opacity-70 mt-2 block">
+                      {msg.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="max-w-[80%] border-l-2 border-gray-300 dark:border-gray-600 pl-4">
+                    <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{msg.content}</p>
+                    <span className="text-xs opacity-70 mt-2 block">
+                      {msg.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                )}
+              </motion.div>
             ))}
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                <div className="border-l-2 border-gray-300 dark:border-gray-600 pl-4">
                   <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               </div>
@@ -262,8 +314,8 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
         </div>
 
         {/* Input area - sticky at bottom */}
-        <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-          <div className="max-w-3xl mx-auto px-6 py-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
+          <div className="max-w-2xl mx-auto px-8 md:px-16 py-6">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -273,30 +325,27 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
                   handleSend();
                 }
               }}
-              placeholder={`Ask about ${patientName}...`}
+              placeholder={`Message about ${patientName}...`}
               disabled={isLoading}
               className="w-full min-h-[100px] bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none text-base"
             />
 
-            <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800 mt-3">
+            <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700 mt-3">
               <span className="text-xs text-muted-foreground">
                 {selectedModel}
               </span>
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
+                className="px-4 py-2 bg-purple-200 dark:bg-purple-900 rounded-lg hover:bg-purple-300 dark:hover:bg-purple-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Thinking...
+                    <Loader2 className="w-4 h-4 animate-spin text-purple-800 dark:text-purple-200" />
+                    <span className="text-purple-800 dark:text-purple-200">Thinking...</span>
                   </>
                 ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    Send
-                  </>
+                  <Send className="w-4 h-4 text-purple-800 dark:text-purple-200" />
                 )}
               </button>
             </div>
@@ -304,7 +353,7 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
             {error && <p className="text-xs text-red-500 mt-2">Error: {error}</p>}
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -315,35 +364,44 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl">
         {/* Messages area - only show if there are messages */}
         {messages.length > 0 && (
-          <div className="max-h-[300px] overflow-y-auto p-4 space-y-3 border-b border-gray-200 dark:border-gray-800">
+          <div className="max-h-[300px] overflow-y-auto p-4 space-y-4 border-b border-gray-200 dark:border-gray-800">
             {messages.map((msg) => (
-              <div
+              <motion.div
                 key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
                 className={`flex ${
                   msg.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                <div
-                  className={`max-w-[85%] rounded-lg p-3 ${
-                    msg.role === "user"
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-foreground"
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  <span className="text-xs opacity-70 mt-1 block">
-                    {msg.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
+                {msg.role === "user" ? (
+                  <div className="max-w-[85%] rounded-xl p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm">
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    <span className="text-xs opacity-70 mt-1 block">
+                      {msg.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="max-w-[85%] border-l-2 border-gray-300 dark:border-gray-600 pl-3">
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed text-foreground">{msg.content}</p>
+                    <span className="text-xs opacity-70 mt-1 block">
+                      {msg.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                )}
+              </motion.div>
             ))}
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+                <div className="border-l-2 border-gray-300 dark:border-gray-600 pl-3">
                   <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                 </div>
               </div>
@@ -364,24 +422,24 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
                 handleSend();
               }
             }}
-            placeholder={`How can I help ${patientName} today?`}
+            placeholder={`Message about ${patientName}...`}
             disabled={isLoading}
             className="w-full min-h-[80px] bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none text-base"
           />
 
-          <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
             <span className="text-xs text-muted-foreground">
               {selectedModel}
             </span>
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="p-2 bg-purple-200 dark:bg-purple-900 rounded-lg hover:bg-purple-300 dark:hover:bg-purple-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-purple-800 dark:text-purple-200" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-4 h-4 text-purple-800 dark:text-purple-200" />
               )}
             </button>
           </div>
@@ -390,9 +448,8 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
         </div>
       </div>
 
-      {/* Category buttons */}
-      {messages.length === 0 && (
-        <div className="flex gap-2 flex-wrap">
+      {/* Category buttons - always show in embedded view */}
+      <div className="flex gap-2 flex-wrap">
           <button
             onClick={() =>
               setSelectedCategory(
@@ -437,11 +494,10 @@ export function ChatInterface({ patientId, patientName }: ChatInterfaceProps) {
             <Activity className="w-3.5 h-3.5" />
             Vitals
           </button>
-        </div>
-      )}
+      </div>
 
       {/* Expanded category suggestions */}
-      {selectedCategory && messages.length === 0 && (
+      {selectedCategory && (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium flex items-center gap-2">

@@ -28,6 +28,7 @@ interface OverviewDashboardProps {
   patientId: string | null;
   onStartRecording?: () => void;
   onNavigateToSection?: (section: string) => void;
+  onChatFullScreenChange?: (isFullScreen: boolean) => void;
 }
 
 export function OverviewDashboard({
@@ -37,7 +38,9 @@ export function OverviewDashboard({
   patientId,
   onStartRecording,
   onNavigateToSection,
+  onChatFullScreenChange,
 }: OverviewDashboardProps) {
+  const [triggerChatFullScreen, setTriggerChatFullScreen] = useState(false);
   const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true);
 
   // Mock data - would come from Firestore in production
@@ -154,8 +157,10 @@ export function OverviewDashboard({
       label: `Ask About ${patientName}`,
       color: "pink",
       onClick: () => {
-        // Would activate chat
-        console.log("Ask about patient");
+        // Trigger chat to open in full-screen
+        setTriggerChatFullScreen(true);
+        // Reset the trigger after a brief moment
+        setTimeout(() => setTriggerChatFullScreen(false), 100);
       },
     },
   ];
@@ -196,7 +201,12 @@ export function OverviewDashboard({
           transition={{ delay: 0.1 }}
         >
           {patientId && (
-            <ChatInterface patientId={patientId} patientName={patientName} />
+            <ChatInterface
+              patientId={patientId}
+              patientName={patientName}
+              onFullScreenChange={onChatFullScreenChange}
+              triggerFullScreen={triggerChatFullScreen}
+            />
           )}
         </motion.div>
       </div>
