@@ -15,6 +15,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   MessageSquare,
+  Calendar,
 } from "lucide-react"
 import { usePatients } from "@/hooks/use-firestore"
 
@@ -24,6 +25,7 @@ const navSections = [
     header: "PATIENT",
     items: [
       { id: "overview", label: "Overview", icon: Home, badge: null },
+      { id: "appointments", label: "Appointments", icon: Calendar, badge: null },
       { id: "history", label: "Medical History", icon: FileText, badge: null },
     ]
   },

@@ -11,11 +11,13 @@ import {
   FileText,
   X,
 } from "lucide-react";
+import { ChatMessage } from "./chat-message";
 
 interface ChatInterfaceProps {
   patientId: string;
   patientName: string;
   onFullScreenChange?: (isFullScreen: boolean) => void;
+  onNavigateToSection?: (section: string) => void;
   triggerFullScreen?: boolean; // External control to open full-screen
 }
 
@@ -60,6 +62,7 @@ export function ChatInterface({
   patientId,
   patientName,
   onFullScreenChange,
+  onNavigateToSection,
   triggerFullScreen,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -289,7 +292,10 @@ export function ChatInterface({
                   </div>
                 ) : (
                   <div className="max-w-[80%] border-l-2 border-gray-300 dark:border-gray-600 pl-4">
-                    <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{msg.content}</p>
+                    <ChatMessage
+                      content={msg.content}
+                      onNavigateToSection={onNavigateToSection}
+                    />
                     <span className="text-xs opacity-70 mt-2 block">
                       {msg.timestamp.toLocaleTimeString([], {
                         hour: "2-digit",
@@ -387,7 +393,11 @@ export function ChatInterface({
                   </div>
                 ) : (
                   <div className="max-w-[85%] border-l-2 border-gray-300 dark:border-gray-600 pl-3">
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed text-foreground">{msg.content}</p>
+                    <ChatMessage
+                      content={msg.content}
+                      onNavigateToSection={onNavigateToSection}
+                      className="text-sm"
+                    />
                     <span className="text-xs opacity-70 mt-1 block">
                       {msg.timestamp.toLocaleTimeString([], {
                         hour: "2-digit",

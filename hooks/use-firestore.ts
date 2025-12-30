@@ -11,7 +11,7 @@ import {
   Timestamp,
 } from 'firebase/firestore'
 import { clientDb } from '@/lib/firebase-client'
-import type { Patient, Appointment, Medication } from '@/types/firestore'
+import type { Patient, Appointment, Medication, LabResult, Invoice } from '@/types/firestore'
 
 function convertTimestamps(data: any): any {
   const converted = { ...data }
@@ -160,4 +160,107 @@ export function usePatientMedications(patientId: string | null) {
   }, [patientId])
 
   return { medications, loading }
+}
+
+export function usePatient(patientId: string | null) {
+  const [patient, setPatient] = useState<Patient | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!patientId) {
+      setPatient(null)
+      setLoading(false)
+      return
+    }
+
+    const q = query(
+      collection(clientDb, 'patients'),
+      where('id', '==', patientId),
+      limit(1)
+    )
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) {
+        setPatient(null)
+      } else {
+        const doc = snapshot.docs[0]
+        const data = {
+          id: doc.id,
+          ...convertTimestamps(doc.data())
+        } as Patient
+        setPatient(data)
+      }
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [patientId])
+
+  return { patient, loading }
+}
+
+export function usePatientLabResults(patientId: string | null) {
+  const [labResults, setLabResults] = useState<LabResult[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!patientId) {
+      setLabResults([])
+      setLoading(false)
+      return
+    }
+
+    const q = query(
+      collection(clientDb, 'labResults'),
+      where('patientId', '==', patientId),
+      orderBy('orderDate', 'desc'),
+      limit(20)
+    )
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...convertTimestamps(doc.data())
+      })) as LabResult[]
+      setLabResults(data)
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [patientId])
+
+  return { labResults, loading }
+}
+
+export function usePatientInvoices(patientId: string | null) {
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!patientId) {
+      setInvoices([])
+      setLoading(false)
+      return
+    }
+
+    const q = query(
+      collection(clientDb, 'invoices'),
+      where('patientId', '==', patientId),
+      orderBy('date', 'desc'),
+      limit(20)
+    )
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...convertTimestamps(doc.data())
+      })) as Invoice[]
+      setInvoices(data)
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [patientId])
+
+  return { invoices, loading }
 }

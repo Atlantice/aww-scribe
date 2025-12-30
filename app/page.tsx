@@ -12,6 +12,7 @@ import { LabResultsScreen } from "@/components/lab-results-screen"
 import { VaccinationsScreen } from "@/components/vaccinations-screen"
 import { DocumentsScreen } from "@/components/documents-screen"
 import { BillingsScreen } from "@/components/billings-screen"
+import { usePatients } from "@/hooks/use-firestore"
 
 export default function AwwScribe() {
   const [activeSection, setActiveSection] = useState("overview")
@@ -21,6 +22,10 @@ export default function AwwScribe() {
   const [selectedScribeId, setSelectedScribeId] = useState<string | null>(null)
   const [isNewScribe, setIsNewScribe] = useState(false)
   const [sidebarStateBeforeFullScreen, setSidebarStateBeforeFullScreen] = useState<boolean | null>(null)
+
+  // Fetch patients to get full patient object
+  const { patients } = usePatients()
+  const currentPatient = patients.find(p => p.id === selectedPatient) || null
 
   // Handle chat full-screen mode - auto-collapse sidebar
   const handleChatFullScreenChange = (isFullScreen: boolean) => {
@@ -109,6 +114,7 @@ export default function AwwScribe() {
         <DetailPanel
           activeSection="recording"
           selectedItem={selectedScribeId}
+          patient={currentPatient}
           patientId={selectedPatient}
           onSectionChange={setActiveSection}
           onChatFullScreenChange={handleChatFullScreenChange}
@@ -120,6 +126,7 @@ export default function AwwScribe() {
       <DetailPanel
         activeSection={activeSection}
         selectedItem={selectedItem}
+        patient={currentPatient}
         patientId={selectedPatient}
         onSectionChange={setActiveSection}
         onChatFullScreenChange={handleChatFullScreenChange}

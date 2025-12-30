@@ -8,17 +8,24 @@ import {
   Loader2,
   Pill,
   AlertCircle,
+  FlaskConical,
+  Syringe,
+  FolderOpen,
+  CreditCard,
+  FileText,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LiveScribe } from "./live-scribe";
 import { OverviewDashboard } from "./overview-dashboard";
+import { UnderConstruction } from "./under-construction";
 import { usePatientAppointments } from "@/hooks/use-firestore";
 import { formatVitalSign, splitVitalSign } from "@/lib/vitals-formatter";
-import type { Appointment } from "@/types/firestore";
+import type { Appointment, Patient } from "@/types/firestore";
 
 interface DetailPanelProps {
   activeSection: string;
   selectedItem: string;
+  patient: Patient | null;
   patientId: string | null;
   onSectionChange?: (section: string) => void;
   onChatFullScreenChange?: (isFullScreen: boolean) => void;
@@ -84,6 +91,7 @@ interface SOAPNote {
 export function DetailPanel({
   activeSection,
   selectedItem,
+  patient,
   patientId,
   onSectionChange,
   onChatFullScreenChange,
@@ -162,11 +170,11 @@ export function DetailPanel({
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-xl font-semibold text-foreground leading-tight">
-                  Luna • {appointmentDate} •{" "}
+                  {patient?.name || "Unknown Patient"} • {appointmentDate} •{" "}
                   {currentAppointment?.veterinarianName || "Dr. Sarah Chen"}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Golden Retriever • 4 years • 65 lbs
+                  {patient?.breed || "Unknown breed"} • {patient?.age || "Unknown age"} • {patient?.weight || "Unknown weight"}
                 </p>
               </div>
               <span
@@ -198,10 +206,10 @@ export function DetailPanel({
               {/* Live Scribe Component - INTEGRATED */}
               <LiveScribe
                 patientId={patientId}
-                patientName="Luna"
-                patientBreed="Golden Retriever"
-                patientAge="4 years"
-                patientWeight="65 lbs"
+                patientName={patient?.name || "Unknown"}
+                patientBreed={patient?.breed || "Unknown"}
+                patientAge={patient?.age || "Unknown"}
+                patientWeight={patient?.weight || "Unknown"}
                 onSOAPGenerated={handleSOAPGenerated}
               />
             </>
@@ -749,9 +757,7 @@ export function DetailPanel({
   if (activeSection === "overview") {
     return (
       <OverviewDashboard
-        patientName="Luna"
-        patientBreed="Golden Retriever"
-        patientAge="4 years"
+        patient={patient}
         patientId={patientId}
         onStartRecording={() => {
           onSectionChange?.("scribes");
@@ -780,18 +786,51 @@ export function DetailPanel({
     return renderRecordingView();
   }
 
-  // For labs, vaccinations, and other unimplemented sections, show under construction
+  // Under construction screens for different sections
+  const underConstructionScreens: Record<string, { icon: any; title: string; description: string }> = {
+    appointments: {
+      icon: Calendar,
+      title: "Appointments",
+      description: "View and manage all scheduled appointments. Track upcoming visits, view appointment history, and access detailed notes from each session.",
+    },
+    labs: {
+      icon: FlaskConical,
+      title: "Lab Results",
+      description: "Access and review all laboratory test results in one convenient location. View detailed reports, track trends over time, and compare values against normal ranges. Get insights into your pet's health through comprehensive lab data visualization.",
+    },
+    vaccinations: {
+      icon: Syringe,
+      title: "Vaccinations",
+      description: "Keep track of all vaccination records and upcoming immunization schedules. Receive timely reminders for booster shots and maintain a complete vaccination history for your pet's health and travel requirements.",
+    },
+    documents: {
+      icon: FolderOpen,
+      title: "Documents",
+      description: "Store and organize all pet-related documents in one secure location. Access medical records, certificates, insurance documents, and other important files anytime you need them.",
+    },
+    billing: {
+      icon: CreditCard,
+      title: "Billing",
+      description: "Manage invoices, payments, and insurance claims. View detailed billing history, track outstanding balances, and access itemized statements for all veterinary services.",
+    },
+    history: {
+      icon: FileText,
+      title: "Medical History",
+      description: "Explore comprehensive medical records and health timeline. Review past diagnoses, treatments, and outcomes to understand your pet's complete medical journey.",
+    },
+  };
+
+  const screen = underConstructionScreens[activeSection];
+  if (screen) {
+    return <UnderConstruction icon={screen.icon} title={screen.title} description={screen.description} />;
+  }
+
+  // Default fallback
   return (
-    <div className="h-full flex items-center justify-center p-6">
-      <div className="text-center space-y-4">
-        <div className="w-16 h-16 mx-auto rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-          <AlertCircle className="w-8 h-8 text-purple-600" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Under Construction</h3>
-          <p className="text-sm text-muted-foreground">This section is coming soon.</p>
-        </div>
-      </div>
-    </div>
+    <UnderConstruction
+      icon={AlertCircle}
+      title="Section Not Found"
+      description="This section is currently unavailable."
+    />
   );
 }

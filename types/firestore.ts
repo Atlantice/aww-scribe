@@ -111,3 +111,38 @@ export interface Medication {
   updatedAt: Date
   autoExtracted: boolean
 }
+
+export interface LabResult {
+  id: string
+  patientId: string
+  appointmentId?: string
+
+  testType: string
+  orderDate: Date
+  status: 'Pending' | 'Completed' | 'Cancelled'
+  resultDate?: Date
+  results?: Record<string, any>
+  notes?: string
+  orderedBy: string
+
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Invoice {
+  id: string
+  patientId: string
+  appointmentId?: string
+
+  invoiceNumber: string
+  amount: number
+  date: Date
+  status: 'Pending' | 'Paid' | 'Overdue'
+  items?: Array<{
+    name: string
+    cost: number
+  }>
+
+  createdAt: Date
+  updatedAt: Date
+}

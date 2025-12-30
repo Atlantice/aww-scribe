@@ -264,7 +264,7 @@ export function ScribeEditor({ onClose, patientId }: ScribeEditorProps) {
                     <div className="px-5 py-3 bg-gradient-to-r from-purple-50 to-purple-100 dark:bg-gradient-to-r dark:from-purple-950/30 dark:to-purple-900/20 border-l-4 border-purple-500">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">
+                          <h3 className="text-xs font-semibold text-purple-900 uppercase tracking-wide">
                             [S] SUBJECTIVE
                           </h3>
                           <p className="text-xs text-purple-700 dark:text-purple-400 mt-1">
