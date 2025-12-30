@@ -8,27 +8,20 @@ import {
   Loader2,
   Pill,
   AlertCircle,
-  FlaskConical,
-  Syringe,
-  FolderOpen,
-  CreditCard,
-  FileText,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LiveScribe } from "./live-scribe";
 import { OverviewDashboard } from "./overview-dashboard";
-import { UnderConstruction } from "./under-construction";
 import { LabResultsView } from "./lab-results-view";
 import { AppointmentsView } from "./appointments-view";
 import { BillingView } from "./billing-view";
 import { usePatientAppointments } from "@/hooks/use-firestore";
 import { formatVitalSign, splitVitalSign } from "@/lib/vitals-formatter";
-import type { Appointment, Patient } from "@/types/firestore";
+import type { Appointment } from "@/types/firestore";
 
 interface DetailPanelProps {
   activeSection: string;
   selectedItem: string;
-  patient: Patient | null;
   patientId: string | null;
   onSectionChange?: (section: string) => void;
   onChatFullScreenChange?: (isFullScreen: boolean) => void;
@@ -94,7 +87,6 @@ interface SOAPNote {
 export function DetailPanel({
   activeSection,
   selectedItem,
-  patient,
   patientId,
   onSectionChange,
   onChatFullScreenChange,
@@ -173,11 +165,11 @@ export function DetailPanel({
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-xl font-semibold text-foreground leading-tight">
-                  {patient?.name || "Unknown Patient"} • {appointmentDate} •{" "}
+                  Luna • {appointmentDate} •{" "}
                   {currentAppointment?.veterinarianName || "Dr. Sarah Chen"}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {patient?.breed || "Unknown breed"} • {patient?.age || "Unknown age"} • {patient?.weight || "Unknown weight"}
+                  Golden Retriever • 4 years • 65 lbs
                 </p>
               </div>
               <span
@@ -209,10 +201,10 @@ export function DetailPanel({
               {/* Live Scribe Component - INTEGRATED */}
               <LiveScribe
                 patientId={patientId}
-                patientName={patient?.name || "Unknown"}
-                patientBreed={patient?.breed || "Unknown"}
-                patientAge={patient?.age || "Unknown"}
-                patientWeight={patient?.weight || "Unknown"}
+                patientName="Luna"
+                patientBreed="Golden Retriever"
+                patientAge="4 years"
+                patientWeight="65 lbs"
                 onSOAPGenerated={handleSOAPGenerated}
               />
             </>
@@ -756,19 +748,25 @@ export function DetailPanel({
     </div>
   );
 
-  // Check activeSection first to prioritize section navigation over selectedItem
+  // Show overview dashboard when Overview section is active
   if (activeSection === "overview") {
     return (
       <OverviewDashboard
-        patient={patient}
+        patientName="Luna"
+        patientBreed="Golden Retriever"
+        patientAge="4 years"
         patientId={patientId}
         onStartRecording={() => {
-          onSectionChange?.("scribes");
+          onSectionChange?.("recording");
         }}
         onNavigateToSection={onSectionChange}
         onChatFullScreenChange={onChatFullScreenChange}
       />
     );
+  }
+
+  if (selectedItem === "current-recording" || activeSection === "recording") {
+    return renderRecordingView();
   }
 
   if (activeSection === "medications") {
@@ -787,50 +785,5 @@ export function DetailPanel({
     return <BillingView patientId={patientId} />;
   }
 
-  if (activeSection === "scribes") {
-    // Show the latest scribe if available, otherwise show new scribe screen
-    if (appointments && appointments.length > 0) {
-      const latestAppointment = appointments[0];
-      return renderRecordingView();
-    }
-    // If no scribes exist, show new scribe screen (renderRecordingView without any appointment loaded)
-    return renderRecordingView();
-  }
-
-  if (selectedItem === "current-recording" || activeSection === "recording") {
-    return renderRecordingView();
-  }
-
-  // Under construction screens for different sections
-  const underConstructionScreens: Record<string, { icon: any; title: string; description: string }> = {
-    vaccinations: {
-      icon: Syringe,
-      title: "Vaccinations",
-      description: "Keep track of all vaccination records and upcoming immunization schedules. Receive timely reminders for booster shots and maintain a complete vaccination history for your pet's health and travel requirements.",
-    },
-    documents: {
-      icon: FolderOpen,
-      title: "Documents",
-      description: "Store and organize all pet-related documents in one secure location. Access medical records, certificates, insurance documents, and other important files anytime you need them.",
-    },
-    history: {
-      icon: FileText,
-      title: "Medical History",
-      description: "Explore comprehensive medical records and health timeline. Review past diagnoses, treatments, and outcomes to understand your pet's complete medical journey.",
-    },
-  };
-
-  const screen = underConstructionScreens[activeSection];
-  if (screen) {
-    return <UnderConstruction icon={screen.icon} title={screen.title} description={screen.description} />;
-  }
-
-  // Default fallback
-  return (
-    <UnderConstruction
-      icon={AlertCircle}
-      title="Section Not Found"
-      description="This section is currently unavailable."
-    />
-  );
+  return renderRecordingView();
 }
