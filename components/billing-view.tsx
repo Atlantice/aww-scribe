@@ -62,9 +62,9 @@ export function BillingView({ patientId }: BillingViewProps) {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Header with Beta Badge */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 px-6 pt-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
             <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -83,7 +83,7 @@ export function BillingView({ patientId }: BillingViewProps) {
 
       {/* Summary Cards */}
       {sortedInvoices.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-4 mb-4 px-6">
           <div className="p-4 rounded-lg border border-border bg-card">
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="w-4 h-4 text-muted-foreground" />
@@ -122,7 +122,7 @@ export function BillingView({ patientId }: BillingViewProps) {
 
       {/* Invoices List */}
       {sortedInvoices.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
             <DollarSign className="w-8 h-8 text-muted-foreground" />
           </div>
@@ -132,7 +132,8 @@ export function BillingView({ patientId }: BillingViewProps) {
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto space-y-3">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="space-y-3">
           {sortedInvoices.map((invoice) => (
             <div
               key={invoice.id}
@@ -196,6 +197,7 @@ export function BillingView({ patientId }: BillingViewProps) {
               )}
             </div>
           ))}
+          </div>
         </div>
       )}
     </div>

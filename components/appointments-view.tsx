@@ -140,9 +140,9 @@ export function AppointmentsView({ patientId }: AppointmentsViewProps) {
   );
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Header with Beta Badge */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 px-6 pt-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
             <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -161,7 +161,7 @@ export function AppointmentsView({ patientId }: AppointmentsViewProps) {
 
       {/* Appointments List */}
       {sortedAppointments.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
             <Calendar className="w-8 h-8 text-muted-foreground" />
           </div>
@@ -171,7 +171,8 @@ export function AppointmentsView({ patientId }: AppointmentsViewProps) {
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="space-y-6">
           {/* Upcoming Appointments */}
           {upcomingAppointments.length > 0 && (
             <div>
@@ -201,6 +202,7 @@ export function AppointmentsView({ patientId }: AppointmentsViewProps) {
               </div>
             </div>
           )}
+          </div>
         </div>
       )}
     </div>
