@@ -18,6 +18,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { LiveScribe } from "./live-scribe";
 import { OverviewDashboard } from "./overview-dashboard";
 import { UnderConstruction } from "./under-construction";
+import { LabResultsView } from "./lab-results-view";
+import { AppointmentsView } from "./appointments-view";
+import { BillingView } from "./billing-view";
 import { usePatientAppointments } from "@/hooks/use-firestore";
 import { formatVitalSign, splitVitalSign } from "@/lib/vitals-formatter";
 import type { Appointment, Patient } from "@/types/firestore";
@@ -772,6 +775,18 @@ export function DetailPanel({
     return renderMedicationView();
   }
 
+  if (activeSection === "labs") {
+    return <LabResultsView patientId={patientId} />;
+  }
+
+  if (activeSection === "appointments") {
+    return <AppointmentsView patientId={patientId} />;
+  }
+
+  if (activeSection === "billing") {
+    return <BillingView patientId={patientId} />;
+  }
+
   if (activeSection === "scribes") {
     // Show the latest scribe if available, otherwise show new scribe screen
     if (appointments && appointments.length > 0) {
@@ -788,16 +803,6 @@ export function DetailPanel({
 
   // Under construction screens for different sections
   const underConstructionScreens: Record<string, { icon: any; title: string; description: string }> = {
-    appointments: {
-      icon: Calendar,
-      title: "Appointments",
-      description: "View and manage all scheduled appointments. Track upcoming visits, view appointment history, and access detailed notes from each session.",
-    },
-    labs: {
-      icon: FlaskConical,
-      title: "Lab Results",
-      description: "Access and review all laboratory test results in one convenient location. View detailed reports, track trends over time, and compare values against normal ranges. Get insights into your pet's health through comprehensive lab data visualization.",
-    },
     vaccinations: {
       icon: Syringe,
       title: "Vaccinations",
@@ -807,11 +812,6 @@ export function DetailPanel({
       icon: FolderOpen,
       title: "Documents",
       description: "Store and organize all pet-related documents in one secure location. Access medical records, certificates, insurance documents, and other important files anytime you need them.",
-    },
-    billing: {
-      icon: CreditCard,
-      title: "Billing",
-      description: "Manage invoices, payments, and insurance claims. View detailed billing history, track outstanding balances, and access itemized statements for all veterinary services.",
     },
     history: {
       icon: FileText,
