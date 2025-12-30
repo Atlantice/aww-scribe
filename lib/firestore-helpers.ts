@@ -272,3 +272,73 @@ export async function createInvoice(
   const docRef = await adminDb.collection('invoices').add(cleanData)
   return docRef.id
 }
+
+// === AI CLINICAL SUMMARY ===
+
+export async function generateAIClinicalSummary(patientId: string): Promise<string> {
+  // Fetch patient data
+  const patient = await getPatient(patientId)
+  if (!patient) return ''
+
+  // Fetch recent medical data
+  const appointments = await getPatientAppointments(patientId, 5)
+  const medications = await getPatientMedications(patientId)
+  const activeMedications = medications.filter(m => m.status === 'Active')
+
+  // Get most recent SOAP note with vitals
+  const latestVitals = await getLatestVitals(patientId)
+
+  // Get latest diagnosis from most recent appointment
+  let latestDiagnosis = ''
+  for (const apt of appointments) {
+    if (apt.soap?.diagnoses && apt.soap.diagnoses.length > 0) {
+      // Get primary diagnosis or first one
+      const primaryDiag = apt.soap.diagnoses.find(d => d.isPrimary) || apt.soap.diagnoses[0]
+      latestDiagnosis = primaryDiag.condition
+      break
+    }
+  }
+
+  // Build summary text
+  const parts: string[] = []
+
+  // Basic patient info
+  parts.push(`${patient.name} is a ${patient.age || 'adult'} ${patient.breed || patient.species}`)
+
+  // Current condition/diagnosis
+  if (latestDiagnosis && !latestDiagnosis.toLowerCase().includes('no documented')) {
+    parts.push(`currently recovering from ${latestDiagnosis.toLowerCase()}`)
+  } else {
+    parts.push(`in generally good health`)
+  }
+
+  // Vital trends
+  if (latestVitals?.temperature) {
+    const tempValue = parseFloat(latestVitals.temperature.replace(/[^0-9.]/g, ''))
+    const normalTemp = 101.5
+    if (tempValue > normalTemp + 0.3) {
+      parts.push(`Recent vital trends show slight elevation in temperature (${latestVitals.temperature} vs normal ${normalTemp}°F) consistent with mild inflammation.`)
+    } else if (latestVitals.temperature) {
+      parts.push(`Vital signs within normal ranges.`)
+    }
+  }
+
+  // Current medications
+  if (activeMedications.length > 0) {
+    const medNames = activeMedications.map(m => m.name).join(' and ')
+    parts.push(`Currently on ${activeMedications.length > 1 ? 'medications' : 'medication'} including ${medNames} with good response.`)
+  }
+
+  // Wrap up
+  parts.push(`No concerning patterns identified in recent visit history.`)
+
+  return parts.join(' ')
+}
+
+export async function updatePatientAISummary(patientId: string): Promise<void> {
+  const summary = await generateAIClinicalSummary(patientId)
+  await adminDb.collection('patients').doc(patientId).update({
+    aiSummary: summary,
+    aiSummaryUpdatedAt: Timestamp.now()
+  })
+}

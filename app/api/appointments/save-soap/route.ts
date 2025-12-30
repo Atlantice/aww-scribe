@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { saveSOAPNote } from '@/lib/firestore-helpers'
+import { saveSOAPNote, updatePatientAISummary } from '@/lib/firestore-helpers'
 import { adminDb } from '@/lib/firebase-admin'
 import { Timestamp } from 'firebase-admin/firestore'
 
@@ -19,6 +19,21 @@ export async function POST(req: Request) {
       status: 'Completed',
       updatedAt: Timestamp.now(),
     })
+
+    // Get patient ID from appointment and regenerate AI summary
+    try {
+      const appointmentDoc = await adminDb.collection('appointments').doc(appointmentId).get()
+      const appointmentData = appointmentDoc.data()
+      if (appointmentData?.patientId) {
+        // Update AI summary in background (don't await to avoid slowing down response)
+        updatePatientAISummary(appointmentData.patientId).catch(err =>
+          console.error('Failed to update AI summary:', err)
+        )
+      }
+    } catch (err) {
+      console.error('Error triggering AI summary update:', err)
+      // Don't fail the request if summary update fails
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
