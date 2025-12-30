@@ -79,21 +79,15 @@ export default function AwwScribe() {
 
   // Determine which detail panel to show
   const renderDetailPanel = () => {
-    // Show skeleton screens
+    // Show skeleton screens (only for sections not yet implemented in DetailPanel)
     if (activeSection === "history") {
       return <MedicalHistoryScreen selectedPatientId={selectedPatient} />
-    }
-    if (activeSection === "labs") {
-      return <LabResultsScreen selectedPatientId={selectedPatient} />
     }
     if (activeSection === "vaccinations") {
       return <VaccinationsScreen selectedPatientId={selectedPatient} />
     }
     if (activeSection === "documents") {
       return <DocumentsScreen selectedPatientId={selectedPatient} />
-    }
-    if (activeSection === "billing") {
-      return <BillingsScreen selectedPatientId={selectedPatient} />
     }
 
     // When in scribes section and creating new scribe, show editor
