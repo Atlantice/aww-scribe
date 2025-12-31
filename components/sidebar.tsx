@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import {
   Home,
-  Mic,
   FileText,
   Pill,
   FlaskConical,
@@ -25,6 +24,13 @@ const navSections = [
     header: "PATIENT",
     items: [
       { id: "overview", label: "Overview", icon: Home, badge: null },
+      { id: "scribes", label: "Scribes", icon: MessageSquare, badge: null },
+    ],
+  },
+  {
+    header: "DOCUMENTATION",
+    items: [
+      // TODO: Removed "Recording" from sidebar - redundant with scribes. Clean up recording-related code later.
       {
         id: "appointments",
         label: "Appointments",
@@ -32,13 +38,6 @@ const navSections = [
         badge: null,
       },
       { id: "history", label: "Medical History", icon: FileText, badge: null },
-    ],
-  },
-  {
-    header: "DOCUMENTATION",
-    items: [
-      { id: "scribes", label: "Scribes", icon: MessageSquare, badge: null },
-      { id: "recording", label: "Recording", icon: Mic, badge: null },
     ],
   },
   {

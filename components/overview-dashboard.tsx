@@ -37,6 +37,7 @@ export function OverviewDashboard({
 }: OverviewDashboardProps) {
   const [triggerChatFullScreen, setTriggerChatFullScreen] = useState(false);
   const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true);
+  const [isChatFullScreen, setIsChatFullScreen] = useState(false);
 
   // Fetch dynamic data
   const { medications } = usePatientMedications(patientId);
@@ -195,12 +196,16 @@ export function OverviewDashboard({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
+          className={isChatFullScreen ? "" : "glow-container"}
         >
           {patientId && (
             <ChatInterface
               patientId={patientId}
               patientName={patient?.name || "Unknown"}
-              onFullScreenChange={onChatFullScreenChange}
+              onFullScreenChange={(isFullScreen) => {
+                setIsChatFullScreen(isFullScreen);
+                onChatFullScreenChange?.(isFullScreen);
+              }}
               onNavigateToSection={onNavigateToSection}
               triggerFullScreen={triggerChatFullScreen}
             />

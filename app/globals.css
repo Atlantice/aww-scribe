@@ -158,3 +158,49 @@ body {
 .animate-recording-pulse {
   animation: recording-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 6s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 24px rgba(168, 85, 247, 0.12))
+            drop-shadow(0 0 48px rgba(168, 85, 247, 0.08));
+  }
+  50% {
+    filter: drop-shadow(0 0 32px rgba(168, 85, 247, 0.18))
+            drop-shadow(0 0 64px rgba(168, 85, 247, 0.12));
+  }
+}
+
+.glow-container {
+  animation: glow-pulse 5s ease-in-out infinite;
+}
