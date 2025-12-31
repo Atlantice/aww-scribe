@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -38,6 +38,7 @@ export function OverviewDashboard({
   const [triggerChatFullScreen, setTriggerChatFullScreen] = useState(false);
   const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true);
   const [isChatFullScreen, setIsChatFullScreen] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch dynamic data
   const { medications } = usePatientMedications(patientId);
@@ -77,6 +78,13 @@ export function OverviewDashboard({
       })
       .catch(err => console.error('Error fetching activity:', err));
   }, [patientId]);
+
+  // Reset scroll position when exiting full-screen chat
+  useEffect(() => {
+    if (!isChatFullScreen && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [isChatFullScreen]);
 
   // Transform medications for display
   const activeMedications = medications
@@ -171,7 +179,10 @@ export function OverviewDashboard({
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-950/50 dark:to-gray-900">
+    <div
+      ref={scrollContainerRef}
+      className="h-full overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-950/50 dark:to-gray-900"
+    >
       {/* Hero Section - Chat Interface */}
       <div className="max-w-5xl mx-auto px-6 pt-6 pb-16">
         {/* Header with pet greeting */}
