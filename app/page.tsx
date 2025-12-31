@@ -8,10 +8,8 @@ import { DetailPanel } from "@/components/detail-panel"
 import { ScribesList } from "@/components/scribes-list"
 import { ScribeEditor } from "@/components/scribe-editor"
 import { MedicalHistoryScreen } from "@/components/medical-history-screen"
-import { LabResultsScreen } from "@/components/lab-results-screen"
 import { VaccinationsScreen } from "@/components/vaccinations-screen"
 import { DocumentsScreen } from "@/components/documents-screen"
-import { BillingsScreen } from "@/components/billings-screen"
 import { usePatients } from "@/hooks/use-firestore"
 
 export default function AwwScribe() {
@@ -45,7 +43,7 @@ export default function AwwScribe() {
   }
 
   // Hide middle panel on Overview section and skeleton screens
-  const skeletonSections = ["history", "labs", "vaccinations", "documents", "billing"]
+  const skeletonSections = ["history", "vaccinations", "documents"]
   const showMiddlePanel = activeSection !== "overview" && activeSection !== "scribes" && !skeletonSections.includes(activeSection)
 
   // Determine which middle panel to show

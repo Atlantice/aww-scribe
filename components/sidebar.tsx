@@ -105,7 +105,7 @@ export function Sidebar({
     return (
       <div className="flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border">
         <div className="px-5 pt-5 pb-6">
-          <h1 className="text-lg font-semibold text-foreground">Aww</h1>
+          <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
         </div>
         <div className="px-5 pb-4">
           <div className="w-full h-16 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg animate-pulse" />
@@ -118,7 +118,7 @@ export function Sidebar({
     return (
       <div className="flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border">
         <div className="px-5 pt-5 pb-6">
-          <h1 className="text-lg font-semibold text-foreground">Aww</h1>
+          <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
         </div>
         <div className="px-5 pb-4">
           <div className="p-3 text-sm text-muted-foreground text-center">
@@ -141,7 +141,7 @@ export function Sidebar({
       {/* App Title with Toggle - 20px padding, 20px bottom before patient */}
       <div className="px-5 pt-5 pb-6 flex items-center justify-between">
         {!isCollapsed && (
-          <h1 className="text-lg font-semibold text-foreground">Aww</h1>
+          <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
         )}
         <button
           onClick={handleCollapseToggle}

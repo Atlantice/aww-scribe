@@ -29,3 +29,29 @@ next-env.d.ts
 # Google Cloud credentials
 service-account-key.json
 backups/
+
+# Scripts with seed/test data
+/scripts/
+
+# Repomix output
+repomix-output.txt
+*.repomix.txt
+
+# Documentation (except README.md)
+/PROJECT_STRUCTURE.md
+/DEPLOYMENT_CHECKLIST.md
+/FIRESTORE_SETUP.md
+/README_VOICE.md
+/VOICE_INTEGRATION_GUIDE.md
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Firebase
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

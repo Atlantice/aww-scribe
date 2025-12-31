@@ -765,6 +765,11 @@ export function DetailPanel({
     );
   }
 
+  // Scribes section - show the selected scribe's SOAP note
+  if (activeSection === "scribes" && selectedItem && selectedItem !== "current-recording") {
+    return renderSOAPView();
+  }
+
   if (selectedItem === "current-recording" || activeSection === "recording") {
     return renderRecordingView();
   }
