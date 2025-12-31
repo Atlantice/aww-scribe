@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Search, Mic } from "lucide-react"
+import { Plus, Search, Stethoscope, Syringe, Activity, CheckCircle, AlertCircle } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { usePatientAppointments } from "@/hooks/use-firestore"
 
@@ -10,6 +10,48 @@ interface ScribesListProps {
   onSelectScribe: (scribeId: string) => void
   selectedScribeId: string | null
   selectedPatientId: string | null
+}
+
+// Helper function to get icon and color based on visit type
+function getVisitTypeStyle(type: string) {
+  switch (type) {
+    case 'Wellness Exam':
+      return {
+        icon: Stethoscope,
+        bgColor: 'bg-green-100 dark:bg-green-900/30',
+        iconColor: 'text-green-600 dark:text-green-400'
+      }
+    case 'Vaccination':
+      return {
+        icon: Syringe,
+        bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+        iconColor: 'text-blue-600 dark:text-blue-400'
+      }
+    case 'Sick Visit':
+      return {
+        icon: AlertCircle,
+        bgColor: 'bg-orange-100 dark:bg-orange-900/30',
+        iconColor: 'text-orange-600 dark:text-orange-400'
+      }
+    case 'Follow-up':
+      return {
+        icon: CheckCircle,
+        bgColor: 'bg-purple-100 dark:bg-purple-900/30',
+        iconColor: 'text-purple-600 dark:text-purple-400'
+      }
+    case 'Emergency':
+      return {
+        icon: Activity,
+        bgColor: 'bg-red-100 dark:bg-red-900/30',
+        iconColor: 'text-red-600 dark:text-red-400'
+      }
+    default:
+      return {
+        icon: Stethoscope,
+        bgColor: 'bg-gray-100 dark:bg-gray-900/30',
+        iconColor: 'text-gray-600 dark:text-gray-400'
+      }
+  }
 }
 
 export function ScribesList({ onNewScribe, onSelectScribe, selectedScribeId, selectedPatientId }: ScribesListProps) {
@@ -79,10 +121,16 @@ export function ScribesList({ onNewScribe, onSelectScribe, selectedScribeId, sel
                 `}
               >
                 <div className="flex items-start gap-3">
-                  {/* Icon indicator - always show Mic since these are all ambient recordings */}
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-purple-100 dark:bg-purple-900/30">
-                    <Mic className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  </div>
+                  {/* Icon indicator based on visit type */}
+                  {(() => {
+                    const visitStyle = getVisitTypeStyle(appointment.type)
+                    const Icon = visitStyle.icon
+                    return (
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${visitStyle.bgColor}`}>
+                        <Icon className={`w-4 h-4 ${visitStyle.iconColor}`} />
+                      </div>
+                    )
+                  })()}
 
                   <div className="flex-1 min-w-0">
                     {/* Title */}
@@ -103,9 +151,14 @@ export function ScribesList({ onNewScribe, onSelectScribe, selectedScribeId, sel
 
                     {/* Metadata */}
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
-                        Ambient
-                      </span>
+                      {(() => {
+                        const visitStyle = getVisitTypeStyle(appointment.type)
+                        return (
+                          <span className={`px-2 py-0.5 rounded-full ${visitStyle.bgColor} ${visitStyle.iconColor}`}>
+                            {appointment.type}
+                          </span>
+                        )
+                      })()}
                       {appointment.veterinarianName && (
                         <span>{appointment.veterinarianName}</span>
                       )}

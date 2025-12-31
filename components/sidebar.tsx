@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import {
   Home,
   Mic,
@@ -16,8 +16,8 @@ import {
   ChevronsRight,
   MessageSquare,
   Calendar,
-} from "lucide-react"
-import { usePatients } from "@/hooks/use-firestore"
+} from "lucide-react";
+import { usePatients } from "@/hooks/use-firestore";
 
 // Navigation sections with headers (Claude Console inspired)
 const navSections = [
@@ -25,16 +25,21 @@ const navSections = [
     header: "PATIENT",
     items: [
       { id: "overview", label: "Overview", icon: Home, badge: null },
-      { id: "appointments", label: "Appointments", icon: Calendar, badge: null },
+      {
+        id: "appointments",
+        label: "Appointments",
+        icon: Calendar,
+        badge: null,
+      },
       { id: "history", label: "Medical History", icon: FileText, badge: null },
-    ]
+    ],
   },
   {
     header: "DOCUMENTATION",
     items: [
       { id: "scribes", label: "Scribes", icon: MessageSquare, badge: null },
       { id: "recording", label: "Recording", icon: Mic, badge: null },
-    ]
+    ],
   },
   {
     header: "CLINICAL",
@@ -42,80 +47,103 @@ const navSections = [
       { id: "medications", label: "Medications", icon: Pill, badge: 2 },
       { id: "labs", label: "Lab Results", icon: FlaskConical, badge: 1 },
       { id: "vaccinations", label: "Vaccinations", icon: Syringe, badge: null },
-    ]
+    ],
   },
   {
     header: "MANAGE",
     items: [
       { id: "documents", label: "Documents", icon: FolderOpen, badge: 12 },
       { id: "billing", label: "Billing", icon: CreditCard, badge: null },
-    ]
-  }
-]
+    ],
+  },
+];
 
 interface SidebarProps {
-  activeSection: string
-  onSectionChange: (section: string) => void
-  selectedPatient: string | null
-  onPatientChange: (patientId: string) => void
-  onCollapseChange?: (collapsed: boolean) => void
-  isCollapsed?: boolean
+  activeSection: string;
+  onSectionChange: (section: string) => void;
+  selectedPatient: string | null;
+  onPatientChange: (patientId: string) => void;
+  onCollapseChange?: (collapsed: boolean) => void;
+  isCollapsed?: boolean;
 }
 
-export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPatientChange, onCollapseChange, isCollapsed = false }: SidebarProps) {
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const { patients, loading, error } = usePatients()
+export function Sidebar({
+  activeSection,
+  onSectionChange,
+  selectedPatient,
+  onPatientChange,
+  onCollapseChange,
+  isCollapsed = false,
+}: SidebarProps) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { patients, loading, error } = usePatients();
 
   // Notify parent of collapse state changes
   const handleCollapseToggle = () => {
-    onCollapseChange?.(!isCollapsed)
-  }
+    onCollapseChange?.(!isCollapsed);
+  };
 
   // Auto-select first patient when loaded (using useEffect to avoid state update during render)
   useEffect(() => {
     if (!loading && !error && patients.length > 0 && !selectedPatient) {
-      console.log('🔵 Auto-selecting patient:', patients[0].id, patients[0].name)
-      onPatientChange(patients[0].id)
+      console.log(
+        "🔵 Auto-selecting patient:",
+        patients[0].id,
+        patients[0].name
+      );
+      onPatientChange(patients[0].id);
     } else {
-      console.log('🔵 Patient selection state:', { loading, error: !!error, patientsCount: patients.length, selectedPatient })
+      console.log("🔵 Patient selection state:", {
+        loading,
+        error: !!error,
+        patientsCount: patients.length,
+        selectedPatient,
+      });
     }
-  }, [loading, error, patients, selectedPatient, onPatientChange])
+  }, [loading, error, patients, selectedPatient, onPatientChange]);
 
   if (loading) {
     return (
       <div className="flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border">
         <div className="px-5 pt-5 pb-6">
-          <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
+          <h1 className="text-lg font-semibold text-foreground">Aww</h1>
         </div>
         <div className="px-5 pb-4">
           <div className="w-full h-16 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg animate-pulse" />
         </div>
       </div>
-    )
+    );
   }
 
   if (error || patients.length === 0) {
     return (
       <div className="flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] border-r border-border">
         <div className="px-5 pt-5 pb-6">
-          <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>
+          <h1 className="text-lg font-semibold text-foreground">Aww</h1>
         </div>
         <div className="px-5 pb-4">
           <div className="p-3 text-sm text-muted-foreground text-center">
-            {error ? 'Error loading patients' : 'No patients found'}
+            {error ? "Error loading patients" : "No patients found"}
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const currentPatient = patients.find((p) => p.id === selectedPatient) || patients[0]
+  const currentPatient =
+    patients.find((p) => p.id === selectedPatient) || patients[0];
 
   return (
-    <div className={`flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] ${!isCollapsed ? 'border-r border-border' : ''}`}>
+    <div
+      className={`flex h-full flex-col bg-[#fafafa] dark:bg-[#0f0f0f] ${
+        !isCollapsed ? "border-r border-border" : ""
+      }`}
+    >
       {/* App Title with Toggle - 20px padding, 20px bottom before patient */}
       <div className="px-5 pt-5 pb-6 flex items-center justify-between">
-        {!isCollapsed && <h1 className="text-lg font-semibold text-foreground">AwwScribe</h1>}
+        {!isCollapsed && (
+          <h1 className="text-lg font-semibold text-foreground">Aww</h1>
+        )}
         <button
           onClick={handleCollapseToggle}
           className="p-1.5 hover:bg-purple-100/50 dark:hover:bg-purple-900/20 rounded-md transition-colors duration-200"
@@ -137,40 +165,61 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="w-full px-3 py-2.5 flex items-center gap-3 bg-white dark:bg-gray-900 border border-border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 group"
             >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentPatient.avatarColor || 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'}`}>
-                <span className="text-sm font-semibold">{currentPatient.initial}</span>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  currentPatient.avatarColor ||
+                  "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                }`}
+              >
+                <span className="text-sm font-semibold">
+                  {currentPatient.initial}
+                </span>
               </div>
               <div className="flex-1 text-left min-w-0">
-                <div className="text-sm font-semibold text-foreground truncate">{currentPatient.name}</div>
-                <div className="text-xs text-muted-foreground truncate">{currentPatient.species}</div>
+                <div className="text-sm font-semibold text-foreground truncate">
+                  {currentPatient.name}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {currentPatient.species}
+                </div>
               </div>
               <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground flex-shrink-0 transition-colors duration-200" />
             </button>
 
-          {dropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a1a] border border-border rounded-lg shadow-lg overflow-hidden z-50">
-              {patients.map((patient) => (
-                <button
-                  key={patient.id}
-                  onClick={() => {
-                    onPatientChange(patient.id)
-                    setDropdownOpen(false)
-                  }}
-                  className="w-full px-3 py-2.5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
-                >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${patient.avatarColor || 'bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400'}`}>
-                    <span className="text-sm font-semibold">{patient.initial}</span>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-sm font-semibold text-foreground">{patient.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {patient.breed || patient.species} {patient.age && `• ${patient.age}`}
+            {dropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a1a] border border-border rounded-lg shadow-lg overflow-hidden z-50">
+                {patients.map((patient) => (
+                  <button
+                    key={patient.id}
+                    onClick={() => {
+                      onPatientChange(patient.id);
+                      setDropdownOpen(false);
+                    }}
+                    className="w-full px-3 py-2.5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        patient.avatarColor ||
+                        "bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold">
+                        {patient.initial}
+                      </span>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-semibold text-foreground">
+                        {patient.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {patient.breed || patient.species}{" "}
+                        {patient.age && `• ${patient.age}`}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -183,7 +232,9 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
             className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 mx-auto hover:scale-110 transition-transform duration-200"
             title={currentPatient.name}
           >
-            <span className="text-sm font-semibold">{currentPatient.initial}</span>
+            <span className="text-sm font-semibold">
+              {currentPatient.initial}
+            </span>
           </button>
         </div>
       )}
@@ -193,9 +244,7 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
         {navSections.map((section, sectionIdx) => (
           <div key={section.header}>
             {/* Divider before each section (except first) - 20px top margin */}
-            {sectionIdx > 0 && (
-              <div className="mx-5 mt-5 h-px bg-border/30" />
-            )}
+            {sectionIdx > 0 && <div className="mx-5 mt-5 h-px bg-border/30" />}
 
             {/* Section Header - 20px top margin, 12px bottom margin, 20px horizontal padding */}
             {!isCollapsed && (
@@ -209,8 +258,8 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
             {/* Menu Items - 8-10px vertical spacing */}
             <div className="px-5 space-y-2">
               {section.items.map((item) => {
-                const Icon = item.icon
-                const isActive = activeSection === item.id
+                const Icon = item.icon;
+                const isActive = activeSection === item.id;
 
                 return (
                   <button
@@ -220,7 +269,7 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
                       w-full flex items-center gap-3 text-left
                       px-2.5 py-1.5 rounded-md
                       transition-all duration-[150ms] ease-in-out
-                      ${isCollapsed ? 'justify-center' : ''}
+                      ${isCollapsed ? "justify-center" : ""}
                       ${
                         isActive
                           ? "bg-purple-500/20 text-foreground"
@@ -229,7 +278,11 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
                     `}
                     title={isCollapsed ? item.label : undefined}
                   >
-                    <Icon className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
+                    <Icon
+                      className={`w-4 h-4 flex-shrink-0 ${
+                        isCollapsed ? "mx-auto" : ""
+                      }`}
+                    />
                     {!isCollapsed && (
                       <>
                         <span className="flex-1 text-[14px] font-normal leading-[1.5]">
@@ -246,7 +299,7 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
                       <span className="absolute top-1 right-1 w-2 h-2 bg-purple-600 rounded-full" />
                     )}
                   </button>
-                )
+                );
               })}
             </div>
           </div>
@@ -262,16 +315,24 @@ export function Sidebar({ activeSection, onSectionChange, selectedPatient, onPat
               w-full flex items-center gap-3 text-left
               px-2.5 py-1.5 rounded-md
               transition-all duration-[150ms] ease-in-out
-              ${isCollapsed ? 'justify-center' : ''}
+              ${isCollapsed ? "justify-center" : ""}
               text-foreground/80 hover:text-foreground hover:bg-purple-500/10
             `}
             title={isCollapsed ? "Settings" : undefined}
           >
-            <Settings className={`w-4 h-4 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-            {!isCollapsed && <span className="text-[14px] font-normal leading-[1.5]">Settings</span>}
+            <Settings
+              className={`w-4 h-4 flex-shrink-0 ${
+                isCollapsed ? "mx-auto" : ""
+              }`}
+            />
+            {!isCollapsed && (
+              <span className="text-[14px] font-normal leading-[1.5]">
+                Settings
+              </span>
+            )}
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 }
