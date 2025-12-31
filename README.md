@@ -343,26 +343,6 @@ POST /api/generate-soap
   → Returns JSON with all sections
 ```
 
-## 🔐 Security Best Practices
-
-### Environment Variables
-- ✅ **DO:** Use `ELEVENLABS_API_KEY` (server-side only, no `NEXT_PUBLIC_` prefix)
-- ✅ **DO:** Generate single-use tokens with 15-minute expiration
-- ❌ **DON'T:** Expose API keys to client-side code
-
-### Service Account Key
-- ✅ **DO:** Store `service-account-key.json` locally only
-- ✅ **DO:** Add to `.gitignore`
-- ❌ **DON'T:** Commit to version control
-- ❌ **DON'T:** Share in public repositories
-
-### Production Deployment
-- Use environment variable injection (Vercel, Railway, etc.)
-- Use Google Cloud Workload Identity for GKE/Cloud Run
-- Implement proper CORS policies
-- Add request rate limiting
-- Enable API usage monitoring
-
 ## 🧪 Development
 
 ### Running Tests
@@ -395,13 +375,11 @@ npm run lint
 - [x] Live ambient transcription with Scribe v2
 - [x] SOAP note generation with Gemini
 - [x] Real-time transcript display
-- [x] Copy-to-clipboard functionality
+- [x] Chat Copilot
+- [ ] Copy-to-clipboard functionality
 - [ ] Phone booking agent integration
 - [ ] Automated reminder calls
 - [ ] Multi-user support
-- [ ] Practice management system integrations (Cornerstone, ezyVet, etc.)
-- [ ] Mobile app (React Native)
-- [ ] HIPAA compliance features
 - [ ] Analytics dashboard
 
 ## 🤝 Contributing
@@ -424,12 +402,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Google Cloud** for Vertex AI and Gemini models
 - **V0 by Vercel** for the initial UI scaffolding
 - **shadcn/ui** for the beautiful component library
-
-## 📧 Support
-
-- **Issues:** [GitHub Issues](https://github.com/your-org/aww_scribe/issues)
-- **Email:** support@awwscribe.com
-- **Documentation:** [https://docs.awwscribe.com](https://docs.awwscribe.com)
 
 ---
 
