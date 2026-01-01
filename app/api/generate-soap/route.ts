@@ -9,6 +9,16 @@ import { NextResponse } from 'next/server'
 import { VertexAI } from '@google-cloud/vertexai'
 import { getRecentSOAPNotes, formatHistoricalContext } from '@/lib/firestore-helpers'
 
+// Helper to normalize private key format (handles both \n literal and actual newlines)
+const normalizePrivateKey = (key: string): string => {
+  // If key already has actual newlines, return as-is
+  if (key.includes('\n')) {
+    return key
+  }
+  // If key has \n as literal text (from Vercel), replace with actual newlines
+  return key.replace(/\\n/g, '\n')
+}
+
 // Initialize Vertex AI with proper authentication for both local and Vercel
 const initializeVertexAI = () => {
   const project = process.env.GOOGLE_CLOUD_PROJECT_ID!
@@ -22,7 +32,7 @@ const initializeVertexAI = () => {
       googleAuthOptions: {
         credentials: {
           client_email: process.env.FIREBASE_CLIENT_EMAIL,
-          private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          private_key: normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY),
         },
         projectId: project,
         scopes: ['https://www.googleapis.com/auth/cloud-platform'],

@@ -3,6 +3,16 @@ import { VertexAI } from "@google-cloud/vertexai";
 import { getPatient, getPatientAppointments, getPatientMedications } from "@/lib/firestore-helpers";
 import type { Patient, Appointment, Medication } from "@/types/firestore";
 
+// Helper to normalize private key format (handles both \n literal and actual newlines)
+const normalizePrivateKey = (key: string): string => {
+  // If key already has actual newlines, return as-is
+  if (key.includes('\n')) {
+    return key
+  }
+  // If key has \n as literal text (from Vercel), replace with actual newlines
+  return key.replace(/\\n/g, '\n')
+}
+
 interface ChatRequest {
   message: string;
   patientId: string;
@@ -95,7 +105,7 @@ export async function POST(req: Request) {
         googleAuthOptions: {
           credentials: {
             client_email: process.env.FIREBASE_CLIENT_EMAIL,
-            private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            private_key: normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY),
           },
           projectId: project,
           scopes: ['https://www.googleapis.com/auth/cloud-platform'],
