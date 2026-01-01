@@ -11,12 +11,19 @@ import { getRecentSOAPNotes, formatHistoricalContext } from '@/lib/firestore-hel
 
 // Helper to normalize private key format (handles both \n literal and actual newlines)
 const normalizePrivateKey = (key: string): string => {
-  // If key already has actual newlines, return as-is
-  if (key.includes('\n')) {
-    return key
+  // Check if key has proper PEM format with actual newlines after the header
+  // A proper key should have "-----BEGIN PRIVATE KEY-----" followed by a newline
+  const hasProperNewlines = key.startsWith('-----BEGIN PRIVATE KEY-----\n') ||
+                           key.startsWith('"-----BEGIN PRIVATE KEY-----\n')
+
+  if (hasProperNewlines) {
+    // Key already has actual newlines, return as-is (but remove surrounding quotes if present)
+    return key.replace(/^"|"$/g, '')
   }
-  // If key has \n as literal text (from Vercel), replace with actual newlines
-  return key.replace(/\\n/g, '\n')
+
+  // Key has \n as literal text (from Vercel env var), replace with actual newlines
+  // Also remove surrounding quotes if present
+  return key.replace(/^"|"$/g, '').replace(/\\n/g, '\n')
 }
 
 // Initialize Vertex AI with proper authentication for both local and Vercel
