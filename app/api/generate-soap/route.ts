@@ -9,10 +9,35 @@ import { NextResponse } from 'next/server'
 import { VertexAI } from '@google-cloud/vertexai'
 import { getRecentSOAPNotes, formatHistoricalContext } from '@/lib/firestore-helpers'
 
-const vertexAI = new VertexAI({
-  project: process.env.GOOGLE_CLOUD_PROJECT_ID!,
-  location: process.env.GOOGLE_CLOUD_LOCATION || 'us-central1',
-})
+// Initialize Vertex AI with proper authentication for both local and Vercel
+const initializeVertexAI = () => {
+  const project = process.env.GOOGLE_CLOUD_PROJECT_ID!
+  const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
+
+  // For Vercel deployment: use environment variables directly
+  if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    return new VertexAI({
+      project,
+      location,
+      googleAuthOptions: {
+        credentials: {
+          client_email: process.env.FIREBASE_CLIENT_EMAIL,
+          private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        },
+        projectId: project,
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      },
+    })
+  }
+
+  // Fallback to default authentication (local with service-account-key.json)
+  return new VertexAI({
+    project,
+    location,
+  })
+}
+
+const vertexAI = initializeVertexAI()
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'

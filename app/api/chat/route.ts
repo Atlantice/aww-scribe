@@ -86,10 +86,28 @@ export async function POST(req: Request) {
       throw new Error("GOOGLE_CLOUD_PROJECT_ID not configured");
     }
 
-    const vertexAI = new VertexAI({
-      project,
-      location,
-    });
+    // For Vercel deployment: use environment variables directly with googleAuthOptions
+    let vertexAI: VertexAI;
+    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+      vertexAI = new VertexAI({
+        project,
+        location,
+        googleAuthOptions: {
+          credentials: {
+            client_email: process.env.FIREBASE_CLIENT_EMAIL,
+            private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          },
+          projectId: project,
+          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+        },
+      });
+    } else {
+      // Fallback to default authentication (local with service-account-key.json)
+      vertexAI = new VertexAI({
+        project,
+        location,
+      });
+    }
 
     // Get appropriate model
     const generativeModel = getModel(vertexAI, model);
