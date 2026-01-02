@@ -15,7 +15,22 @@ const initializeVertexAI = () => {
   const project = process.env.GOOGLE_CLOUD_PROJECT_ID!
   const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
 
-  // Option 1: Use complete service account JSON (recommended for Vercel)
+  // Option 1: Use base64-encoded service account (safest for Vercel - avoids escaping issues)
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64) {
+    const credentialsJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64, 'base64').toString('utf-8')
+    const credentials = JSON.parse(credentialsJson)
+    return new VertexAI({
+      project,
+      location,
+      googleAuthOptions: {
+        credentials,
+        projectId: project,
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      },
+    })
+  }
+
+  // Option 2: Use complete service account JSON
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
     const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
     return new VertexAI({

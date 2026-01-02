@@ -89,8 +89,22 @@ export async function POST(req: Request) {
 
     let vertexAI: VertexAI;
 
-    // Option 1: Use complete service account JSON (recommended for Vercel)
-    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    // Option 1: Use base64-encoded service account (safest for Vercel - avoids escaping issues)
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64) {
+      const credentialsJson = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64, 'base64').toString('utf-8');
+      const credentials = JSON.parse(credentialsJson);
+      vertexAI = new VertexAI({
+        project,
+        location,
+        googleAuthOptions: {
+          credentials,
+          projectId: project,
+          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+        },
+      });
+    }
+    // Option 2: Use complete service account JSON
+    else if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
       const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
       vertexAI = new VertexAI({
         project,
@@ -102,7 +116,7 @@ export async function POST(req: Request) {
         },
       });
     }
-    // Option 2: Fallback to individual env vars (legacy)
+    // Option 3: Fallback to individual env vars (legacy)
     else if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
       vertexAI = new VertexAI({
         project,
