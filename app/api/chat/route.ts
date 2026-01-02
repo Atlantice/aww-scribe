@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { VertexAI } from "@google-cloud/vertexai";
+import { GoogleAuth } from "google-auth-library";
 import { getPatient, getPatientAppointments, getPatientMedications } from "@/lib/firestore-helpers";
 import type { Patient, Appointment, Medication } from "@/types/firestore";
 
@@ -78,9 +79,7 @@ export async function POST(req: Request) {
       activeMedications
     );
 
-    // Initialize Vertex AI
-    // The trick: Let Google Auth Library handle credentials via environment variables
-    // instead of passing them through VertexAI's googleAuthOptions
+    // Initialize Vertex AI using GoogleAuth to avoid DECODER errors
     const project = process.env.GOOGLE_CLOUD_PROJECT_ID;
     const location = process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
 
@@ -88,8 +87,9 @@ export async function POST(req: Request) {
       throw new Error("GOOGLE_CLOUD_PROJECT_ID not configured");
     }
 
-    // For Vercel: Write credentials to a temp file that Google Auth Library can read
-    // This avoids the DECODER error from parsing the private key directly
+    let vertexAI: VertexAI;
+
+    // For Vercel: Use GoogleAuth with explicit credentials
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64) {
       try {
         const credentialsJson = Buffer.from(
@@ -97,47 +97,64 @@ export async function POST(req: Request) {
           'base64'
         ).toString('utf-8');
 
-        // Write to temp file
-        const { writeFileSync } = require('fs');
-        const { tmpdir } = require('os');
-        const { join } = require('path');
+        const credentials = JSON.parse(credentialsJson);
 
-        const tempPath = join(tmpdir(), 'gcp-credentials.json');
-        writeFileSync(tempPath, credentialsJson);
+        console.log('🔑 Using base64 credentials with GoogleAuth');
 
-        // Set GOOGLE_APPLICATION_CREDENTIALS env var to point to temp file
-        process.env.GOOGLE_APPLICATION_CREDENTIALS = tempPath;
+        const auth = new GoogleAuth({
+          credentials,
+          projectId: project,
+          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+        });
 
-        console.log('🔑 Using base64 credentials written to temp file');
+        const authClient = await auth.getClient();
+
+        vertexAI = new VertexAI({
+          project,
+          location,
+          googleAuthOptions: {
+            authClient: authClient as any,
+          },
+        });
       } catch (error) {
-        console.error('Failed to write credentials to temp file:', error);
+        console.error('Failed to initialize with base64 credentials:', error);
+        throw error;
       }
     }
-    // For Vercel: Alternative approach using GOOGLE_APPLICATION_CREDENTIALS_JSON
+    // For Vercel: Alternative with JSON string
     else if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
       try {
-        const { writeFileSync } = require('fs');
-        const { tmpdir } = require('os');
-        const { join } = require('path');
+        const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
 
-        const tempPath = join(tmpdir(), 'gcp-credentials.json');
-        writeFileSync(tempPath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+        console.log('🔑 Using JSON credentials with GoogleAuth');
 
-        // Set GOOGLE_APPLICATION_CREDENTIALS env var to point to temp file
-        process.env.GOOGLE_APPLICATION_CREDENTIALS = tempPath;
+        const auth = new GoogleAuth({
+          credentials,
+          projectId: project,
+          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+        });
 
-        console.log('🔑 Using JSON credentials written to temp file');
+        const authClient = await auth.getClient();
+
+        vertexAI = new VertexAI({
+          project,
+          location,
+          googleAuthOptions: {
+            authClient: authClient as any,
+          },
+        });
       } catch (error) {
-        console.error('Failed to write credentials to temp file:', error);
+        console.error('Failed to initialize with JSON credentials:', error);
+        throw error;
       }
     }
-
-    // Now initialize VertexAI without googleAuthOptions
-    // Let it use Application Default Credentials (ADC) which will read from the env var
-    const vertexAI = new VertexAI({
-      project,
-      location,
-    });
+    // Fallback: Default authentication (local)
+    else {
+      vertexAI = new VertexAI({
+        project,
+        location,
+      });
+    }
 
     // Get appropriate model
     const generativeModel = getModel(vertexAI, model);
