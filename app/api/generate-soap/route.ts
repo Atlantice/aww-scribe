@@ -9,29 +9,27 @@ import { NextResponse } from 'next/server'
 import { VertexAI } from '@google-cloud/vertexai'
 import { getRecentSOAPNotes, formatHistoricalContext } from '@/lib/firestore-helpers'
 
-// Helper to normalize private key format (handles both \n literal and actual newlines)
-const normalizePrivateKey = (key: string): string => {
-  // Check if key has proper PEM format with actual newlines after the header
-  // A proper key should have "-----BEGIN PRIVATE KEY-----" followed by a newline
-  const hasProperNewlines = key.startsWith('-----BEGIN PRIVATE KEY-----\n') ||
-                           key.startsWith('"-----BEGIN PRIVATE KEY-----\n')
-
-  if (hasProperNewlines) {
-    // Key already has actual newlines, return as-is (but remove surrounding quotes if present)
-    return key.replace(/^"|"$/g, '')
-  }
-
-  // Key has \n as literal text (from Vercel env var), replace with actual newlines
-  // Also remove surrounding quotes if present
-  return key.replace(/^"|"$/g, '').replace(/\\n/g, '\n')
-}
-
 // Initialize Vertex AI with proper authentication for both local and Vercel
+// Following Google Cloud best practices: https://github.com/googleapis/google-auth-library-nodejs
 const initializeVertexAI = () => {
   const project = process.env.GOOGLE_CLOUD_PROJECT_ID!
   const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
 
-  // For Vercel deployment: use environment variables directly
+  // Option 1: Use complete service account JSON (recommended for Vercel)
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+    return new VertexAI({
+      project,
+      location,
+      googleAuthOptions: {
+        credentials,
+        projectId: project,
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      },
+    })
+  }
+
+  // Option 2: Fallback to individual env vars (legacy)
   if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
     return new VertexAI({
       project,
@@ -39,7 +37,8 @@ const initializeVertexAI = () => {
       googleAuthOptions: {
         credentials: {
           client_email: process.env.FIREBASE_CLIENT_EMAIL,
-          private_key: normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY),
+          private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          type: 'service_account',
         },
         projectId: project,
         scopes: ['https://www.googleapis.com/auth/cloud-platform'],
@@ -47,7 +46,7 @@ const initializeVertexAI = () => {
     })
   }
 
-  // Fallback to default authentication (local with service-account-key.json)
+  // Option 3: Default authentication (local with service-account-key.json)
   return new VertexAI({
     project,
     location,
