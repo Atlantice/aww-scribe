@@ -7,80 +7,37 @@
 
 import { NextResponse } from 'next/server'
 import { VertexAI } from '@google-cloud/vertexai'
-import { GoogleAuth } from 'google-auth-library'
 import { getRecentSOAPNotes, formatHistoricalContext } from '@/lib/firestore-helpers'
 
 // Initialize Vertex AI with proper authentication for both local and Vercel
-// Use GoogleAuth directly to avoid DECODER errors with private key parsing
-const initializeVertexAI = async () => {
+// WORKAROUND: Pass credentials directly to VertexAI, avoiding GoogleAuth's RSA parsing
+const initializeVertexAI = () => {
   const project = process.env.GOOGLE_CLOUD_PROJECT_ID!
   const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
 
-  // For Vercel: Use GoogleAuth with explicit credentials
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64) {
+  // For Vercel: Use complete service account JSON
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
     try {
-      const credentialsJson = Buffer.from(
-        process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64,
-        'base64'
-      ).toString('utf-8')
+      console.log('🔑 Using GOOGLE_SERVICE_ACCOUNT_JSON for VertexAI')
 
-      const credentials = JSON.parse(credentialsJson)
-
-      console.log('🔑 Using base64 credentials with GoogleAuth')
-
-      // Create GoogleAuth instance with explicit credentials
-      const auth = new GoogleAuth({
-        credentials,
-        projectId: project,
-        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-      })
-
-      // Get the actual auth client (JWT)
-      const authClient = await auth.getClient()
+      const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON)
 
       return new VertexAI({
         project,
         location,
         googleAuthOptions: {
-          authClient: authClient as any,
+          credentials,
+          projectId: project,
         },
       })
     } catch (error) {
-      console.error('Failed to initialize with base64 credentials:', error)
-      throw error
-    }
-  }
-
-  // For Vercel: Alternative with JSON string
-  else if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-    try {
-      const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
-
-      console.log('🔑 Using JSON credentials with GoogleAuth')
-
-      const auth = new GoogleAuth({
-        credentials,
-        projectId: project,
-        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-      })
-
-      // Get the actual auth client (JWT)
-      const authClient = await auth.getClient()
-
-      return new VertexAI({
-        project,
-        location,
-        googleAuthOptions: {
-          authClient: authClient as any,
-        },
-      })
-    } catch (error) {
-      console.error('Failed to initialize with JSON credentials:', error)
+      console.error('Failed to initialize with service account JSON:', error)
       throw error
     }
   }
 
   // Fallback: Default authentication (local with service-account-key.json)
+  console.log('🔑 Using local service account file')
   return new VertexAI({
     project,
     location,
@@ -132,7 +89,7 @@ export async function POST(req: Request) {
     }
 
     // Initialize Vertex AI for this request
-    const vertexAI = await initializeVertexAI()
+    const vertexAI = initializeVertexAI()
 
     // Get Gemini model
     const model = vertexAI.getGenerativeModel({

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { VertexAI } from "@google-cloud/vertexai";
-import { GoogleAuth } from "google-auth-library";
 import { getPatient, getPatientAppointments, getPatientMedications } from "@/lib/firestore-helpers";
 import type { Patient, Appointment, Medication } from "@/types/firestore";
 
@@ -79,7 +78,7 @@ export async function POST(req: Request) {
       activeMedications
     );
 
-    // Initialize Vertex AI using GoogleAuth to avoid DECODER errors
+    // Initialize Vertex AI - pass credentials directly to avoid GoogleAuth RSA parsing
     const project = process.env.GOOGLE_CLOUD_PROJECT_ID;
     const location = process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
 
@@ -89,62 +88,23 @@ export async function POST(req: Request) {
 
     let vertexAI: VertexAI;
 
-    // For Vercel: Use GoogleAuth with explicit credentials
-    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64) {
+    // For Vercel: Use complete service account JSON
+    if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
       try {
-        const credentialsJson = Buffer.from(
-          process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64,
-          'base64'
-        ).toString('utf-8');
+        console.log('🔑 Using GOOGLE_SERVICE_ACCOUNT_JSON');
 
-        const credentials = JSON.parse(credentialsJson);
-
-        console.log('🔑 Using base64 credentials with GoogleAuth');
-
-        const auth = new GoogleAuth({
-          credentials,
-          projectId: project,
-          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-        });
-
-        const authClient = await auth.getClient();
+        const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
 
         vertexAI = new VertexAI({
           project,
           location,
           googleAuthOptions: {
-            authClient: authClient as any,
+            credentials,
+            projectId: project,
           },
         });
       } catch (error) {
-        console.error('Failed to initialize with base64 credentials:', error);
-        throw error;
-      }
-    }
-    // For Vercel: Alternative with JSON string
-    else if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-      try {
-        const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-
-        console.log('🔑 Using JSON credentials with GoogleAuth');
-
-        const auth = new GoogleAuth({
-          credentials,
-          projectId: project,
-          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-        });
-
-        const authClient = await auth.getClient();
-
-        vertexAI = new VertexAI({
-          project,
-          location,
-          googleAuthOptions: {
-            authClient: authClient as any,
-          },
-        });
-      } catch (error) {
-        console.error('Failed to initialize with JSON credentials:', error);
+        console.error('Failed to initialize with service account JSON:', error);
         throw error;
       }
     }
