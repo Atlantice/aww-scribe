@@ -10,17 +10,19 @@ import { VertexAI } from '@google-cloud/vertexai'
 import { getRecentSOAPNotes, formatHistoricalContext } from '@/lib/firestore-helpers'
 
 // Initialize Vertex AI with proper authentication for both local and Vercel
-// WORKAROUND: Pass credentials directly to VertexAI, avoiding GoogleAuth's RSA parsing
+// WORKAROUND: Use base64-encoded credentials to avoid DECODER error on Vercel
 const initializeVertexAI = () => {
   const project = process.env.GOOGLE_CLOUD_PROJECT_ID!
   const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
 
-  // For Vercel: Use complete service account JSON
-  if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+  // For Vercel: Use base64-encoded service account JSON
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64) {
     try {
-      console.log('🔑 Using GOOGLE_SERVICE_ACCOUNT_JSON for VertexAI')
+      console.log('🔑 Using GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64 for VertexAI')
 
-      const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON)
+      const credentials = JSON.parse(
+        Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64, 'base64').toString()
+      )
 
       return new VertexAI({
         project,
@@ -31,7 +33,7 @@ const initializeVertexAI = () => {
         },
       })
     } catch (error) {
-      console.error('Failed to initialize with service account JSON:', error)
+      console.error('Failed to initialize with base64 credentials:', error)
       throw error
     }
   }

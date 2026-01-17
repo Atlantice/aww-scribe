@@ -78,7 +78,7 @@ export async function POST(req: Request) {
       activeMedications
     );
 
-    // Initialize Vertex AI - pass credentials directly to avoid GoogleAuth RSA parsing
+    // Initialize Vertex AI - use base64-encoded credentials to avoid DECODER error on Vercel
     const project = process.env.GOOGLE_CLOUD_PROJECT_ID;
     const location = process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
 
@@ -88,12 +88,14 @@ export async function POST(req: Request) {
 
     let vertexAI: VertexAI;
 
-    // For Vercel: Use complete service account JSON
-    if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+    // For Vercel: Use base64-encoded service account JSON
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64) {
       try {
-        console.log('🔑 Using GOOGLE_SERVICE_ACCOUNT_JSON');
+        console.log('🔑 Using GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64');
 
-        const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+        const credentials = JSON.parse(
+          Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64, 'base64').toString()
+        );
 
         vertexAI = new VertexAI({
           project,
@@ -104,7 +106,7 @@ export async function POST(req: Request) {
           },
         });
       } catch (error) {
-        console.error('Failed to initialize with service account JSON:', error);
+        console.error('Failed to initialize with base64 credentials:', error);
         throw error;
       }
     }
