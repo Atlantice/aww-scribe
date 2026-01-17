@@ -5,10 +5,22 @@ import * as fs from 'fs'
 
 if (!getApps().length) {
   try {
-    // Try to use service account key file first (most reliable)
-    const serviceAccountPath = path.join(process.cwd(), 'service-account-key.json')
+    // Try base64-encoded credentials first (Vercel workaround for DECODER error)
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64) {
+      console.log('🔑 Using GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64 for Firebase Admin')
+      const serviceAccount = JSON.parse(
+        Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64, 'base64').toString()
+      )
 
-    if (fs.existsSync(serviceAccountPath)) {
+      initializeApp({
+        credential: cert(serviceAccount),
+        projectId: serviceAccount.project_id,
+      })
+      console.log('✓ Firebase Admin initialized with base64 credentials')
+    }
+    // Try to use service account key file (local development)
+    else if (fs.existsSync(path.join(process.cwd(), 'service-account-key.json'))) {
+      const serviceAccountPath = path.join(process.cwd(), 'service-account-key.json')
       console.log('Using service account key file:', serviceAccountPath)
       const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'))
 
@@ -17,8 +29,9 @@ if (!getApps().length) {
         projectId: serviceAccount.project_id,
       })
       console.log('✓ Firebase Admin initialized with service account file')
-    } else if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-      // Fallback to environment variables
+    }
+    // Fallback to environment variables (legacy - may cause DECODER error on Vercel)
+    else if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
       console.log('Using environment variables for Firebase Admin')
       initializeApp({
         credential: cert({
