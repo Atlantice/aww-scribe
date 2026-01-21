@@ -127,6 +127,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button,
+a,
+[role="button"],
+[type="button"],
+[type="submit"],
+label[for] {
+  cursor: pointer;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
