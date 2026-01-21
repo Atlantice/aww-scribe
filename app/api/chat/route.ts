@@ -188,14 +188,15 @@ Provide a direct clinical answer to the veterinary professional.`;
     // POST-PROCESSING: Filter out inappropriate veterinarian consultation suggestions
     // This is a safety net in case the model ignores the system prompt
     const inappropriatePatterns = [
-      /consult with (?:a|the|their|her|his) veterinarian/gi,
-      /speak with (?:a|the|their|her|his) vet(?:erinarian)?/gi,
-      /ask your veterinarian/gi,
-      /check with (?:a|the|their) vet(?:erinarian)?/gi,
-      /contact (?:a|the|their) veterinarian/gi,
-      /see (?:a|the|their) veterinarian/gi,
-      /visit (?:a|the|their) veterinarian/gi,
-      /reach out to (?:a|the|their) vet(?:erinarian)?/gi,
+      /consult with (?:a|the|their|her|his|[\w']+s) vet(?:erinarian)?/gi,
+      /speak with (?:a|the|their|her|his|[\w']+s) vet(?:erinarian)?/gi,
+      /ask (?:your|a|the|their|[\w']+s) vet(?:erinarian)?/gi,
+      /check with (?:a|the|their|[\w']+s) vet(?:erinarian)?/gi,
+      /contact (?:a|the|their|[\w']+s) vet(?:erinarian)?/gi,
+      /see (?:a|the|their|[\w']+s) vet(?:erinarian)?/gi,
+      /visit (?:a|the|their|[\w']+s) vet(?:erinarian)?/gi,
+      /reach out to (?:a|the|their|[\w']+s) vet(?:erinarian)?/gi,
+      /talk to (?:a|the|their|[\w']+s) vet(?:erinarian)?/gi,
     ];
 
     let wasFiltered = false;
