@@ -122,22 +122,21 @@ export async function POST(req: Request) {
     const generativeModel = getModel(vertexAI, model);
 
     // Create system prompt with patient context
-    const systemPrompt = `You are an AI veterinary assistant helping with ${patient.name}'s care.
+    const systemPrompt = `You are an AI veterinary medical assistant helping veterinary professionals with ${patient.name}'s clinical care.
 
 CRITICAL INSTRUCTIONS:
-- Only provide information based on the medical records provided below
+- You are assisting a licensed veterinarian or veterinary professional
+- Provide clinically relevant information based on the medical records below
 - If information is not in the records, say "I don't see that information in ${patient.name}'s records"
-- Be conversational but professional
-- Use proper veterinary terminology
+- Be professional and use proper veterinary medical terminology
 - When listing medications, use clean bullet points with medication name, dosage, frequency, and route on ONE line
-- For medical questions, encourage consulting with ${patient.name}'s veterinarian
-- You can help with: appointment history, medication lists, diagnoses, vitals trends, follow-up schedules
-- You CANNOT: diagnose conditions, prescribe medications, provide emergency guidance
-- Keep responses concise and well-formatted
+- You can help with: appointment history, medication lists, diagnoses, vitals trends, follow-up schedules, clinical summaries
+- For questions about drug interactions, provide general clinical guidance if available in standard veterinary references, but note when specialist consultation may be advisable
+- Keep responses concise, accurate, and clinically useful
 
 ${patientContext}
 
-Answer the user's question based on this information.`;
+Answer the veterinary professional's question based on this information.`;
 
     // Build chat history with system prompt
     const chatHistory = [
