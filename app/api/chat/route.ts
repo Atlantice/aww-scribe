@@ -122,23 +122,30 @@ export async function POST(req: Request) {
     const generativeModel = getModel(vertexAI, model);
 
     // Create system prompt with patient context
-    const systemPrompt = `You are an AI clinical assistant helping a veterinary professional with ${patient.name}'s care.
+    const systemPrompt = `You are an AI clinical assistant helping a VETERINARY PROFESSIONAL (licensed DVM or vet tech) with ${patient.name}'s care.
 
-USER CONTEXT: The person asking questions is a licensed veterinarian or veterinary technician - NOT a pet owner.
+=== CRITICAL USER CONTEXT ===
+THE USER IS A LICENSED VETERINARIAN OR VETERINARY TECHNICIAN - NOT A PET OWNER.
+NEVER suggest they consult a veterinarian - THEY ARE THE VETERINARIAN.
 
-CRITICAL INSTRUCTIONS:
-- Provide direct, clinically relevant answers based on the medical records below
-- If information is not in the records, say "I don't see that information in ${patient.name}'s records"
+=== YOUR ROLE ===
+Provide direct, evidence-based clinical guidance based on the medical records below.
+
+=== INSTRUCTIONS ===
+- Answer questions directly with clinical information from the records
+- For drug interactions: Analyze the medication list using standard veterinary pharmacology. If no significant interactions exist, state: "No significant drug interactions identified between current medications based on standard veterinary pharmacology references."
+- For missing information: "I don't see that information in ${patient.name}'s records"
 - Use professional veterinary medical terminology
-- For drug interaction questions: Review the current medication list and provide clinical analysis based on standard veterinary pharmacology. If no interactions are documented in the records and none are known from standard references, state that clearly.
-- NEVER tell the user to "consult with a veterinarian" - they ARE the veterinarian
-- When listing medications, use clean bullet points with medication name, dosage, frequency, and route on ONE line
-- You can help with: appointment history, medication lists, diagnoses, vitals trends, follow-up schedules, clinical summaries, general clinical guidance
-- Keep responses concise, accurate, and clinically useful
+- Format medications as clean bullets: name, dosage, frequency, route on ONE line
+- Available assistance: appointment history, medication lists, diagnoses, vitals, follow-ups, clinical summaries
+- Be concise and clinically useful
+
+=== FORBIDDEN ===
+NEVER use phrases like: "consult with a/the/their/her veterinarian", "speak with a vet", "ask your veterinarian", "check with the vet", "contact a veterinarian"
 
 ${patientContext}
 
-Provide a direct clinical answer to the veterinary professional's question.`;
+Provide a direct clinical answer to the veterinary professional.`;
 
     // Build chat history with system prompt
     const chatHistory = [
@@ -171,11 +178,42 @@ Provide a direct clinical answer to the veterinary professional's question.`;
 
     const result = await chat.sendMessage(message);
     const response = result.response;
-    const responseText =
+    let responseText =
       response.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     if (!responseText) {
       throw new Error("No response from model");
+    }
+
+    // POST-PROCESSING: Filter out inappropriate veterinarian consultation suggestions
+    // This is a safety net in case the model ignores the system prompt
+    const inappropriatePatterns = [
+      /consult with (?:a|the|their|her|his) veterinarian/gi,
+      /speak with (?:a|the|their|her|his) vet(?:erinarian)?/gi,
+      /ask your veterinarian/gi,
+      /check with (?:a|the|their) vet(?:erinarian)?/gi,
+      /contact (?:a|the|their) veterinarian/gi,
+      /see (?:a|the|their) veterinarian/gi,
+      /visit (?:a|the|their) veterinarian/gi,
+      /reach out to (?:a|the|their) vet(?:erinarian)?/gi,
+    ];
+
+    let wasFiltered = false;
+    for (const pattern of inappropriatePatterns) {
+      if (pattern.test(responseText)) {
+        wasFiltered = true;
+        // Replace inappropriate suggestions with professional language
+        responseText = responseText.replace(
+          pattern,
+          "consider additional clinical evaluation"
+        );
+      }
+    }
+
+    if (wasFiltered) {
+      console.warn(
+        "⚠️ Filtered inappropriate veterinarian consultation suggestion from AI response"
+      );
     }
 
     // Prepare response
@@ -285,7 +323,7 @@ Follow-up Required: ${followUp}
 function getModel(vertexAI: VertexAI, modelName: string) {
   const baseConfig = {
     generationConfig: {
-      temperature: 0.7, // Higher than SOAP (0.3) for more natural chat
+      temperature: 0.4, // Lower temperature for better instruction-following
       maxOutputTokens: 1024,
       topP: 0.95,
     },
