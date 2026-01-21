@@ -38,7 +38,7 @@ type Category = "medications" | "history" | "appointments" | "vitals" | null;
 const CATEGORY_QUESTIONS: Record<string, string[]> = {
   medications: [
     "What medications is currently prescribed?",
-    "Are there any medication interactions I should know about?",
+    "Review the current medication list and dosing schedule",
     "When is the next medication refill due?",
   ],
   history: [
