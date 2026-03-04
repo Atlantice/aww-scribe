@@ -45,7 +45,7 @@ export function TestimonialsSection() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+          <p className="text-sm font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
             Social Proof
           </p>
           <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl">
@@ -59,7 +59,7 @@ export function TestimonialsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-30px" }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="mx-auto mt-12 max-w-2xl rounded-xl border border-primary/20 bg-primary/[0.03] p-8 text-center"
+          className="mx-auto mt-12 max-w-2xl rounded-xl border border-purple-200 dark:border-purple-800/40 bg-gradient-to-br from-purple-50 to-violet-50/50 dark:from-purple-950/20 dark:to-violet-950/10 p-8 text-center"
         >
           <p className="text-xl font-medium italic text-foreground md:text-2xl">
             {`"${quote.text}"`}
@@ -68,7 +68,7 @@ export function TestimonialsSection() {
             {"— "}
             {quote.attribution}
           </footer>
-          <p className="mt-2 text-sm font-semibold text-primary">
+          <p className="mt-2 text-sm font-semibold text-purple-600 dark:text-purple-400">
             {quote.followup}
           </p>
         </motion.blockquote>
@@ -82,7 +82,7 @@ export function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-30px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="rounded-xl border border-border/60 bg-card p-6 transition-all hover:border-primary/30 hover:shadow-md hover:shadow-primary/5"
+              className="rounded-xl border border-purple-100 dark:border-purple-900/30 bg-card p-6 transition-all hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md hover:shadow-purple-500/5"
             >
               {point.type === "award" && (
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950/30">
@@ -90,9 +90,9 @@ export function TestimonialsSection() {
                 </div>
               )}
               {point.type === "tech" && (
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
                   <svg
-                    className="h-5 w-5 text-primary"
+                    className="h-5 w-5 text-purple-600 dark:text-purple-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -109,7 +109,7 @@ export function TestimonialsSection() {
               <h3 className="text-lg font-semibold text-foreground">
                 {point.title}
               </h3>
-              <p className="text-sm font-medium text-primary">
+              <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
                 {point.subtitle}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -120,7 +120,7 @@ export function TestimonialsSection() {
                   href={point.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline"
                 >
                   View submission
                   <ExternalLink className="h-3.5 w-3.5" />

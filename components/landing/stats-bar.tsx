@@ -11,7 +11,7 @@ const stats = [
 
 export function StatsBar() {
   return (
-    <section className="border-y border-border/50 bg-primary/[0.03]">
+    <section className="border-y border-purple-100 dark:border-purple-900/30 bg-gradient-to-r from-purple-50/50 to-violet-50/50 dark:from-purple-950/10 dark:to-violet-950/10">
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {stats.map((stat, i) => (
@@ -23,7 +23,7 @@ export function StatsBar() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className="text-center"
             >
-              <div className="text-3xl font-bold tracking-tight text-primary md:text-4xl">
+              <div className="text-3xl font-bold tracking-tight text-purple-600 dark:text-purple-400 md:text-4xl">
                 {stat.value}
               </div>
               <div className="mt-1 text-sm text-muted-foreground">

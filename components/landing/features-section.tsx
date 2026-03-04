@@ -60,7 +60,7 @@ export function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+          <p className="text-sm font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
             Features
           </p>
           <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl">
@@ -80,10 +80,10 @@ export function FeaturesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-30px" }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="group rounded-xl border border-border/60 bg-card p-6 transition-all hover:border-primary/30 hover:shadow-md hover:shadow-primary/5"
+              className="group rounded-xl border border-purple-100 dark:border-purple-900/30 bg-card p-6 transition-all hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md hover:shadow-purple-500/5"
             >
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <feature.icon className="h-5 w-5 text-primary" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                <feature.icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">
                 {feature.title}

@@ -25,7 +25,7 @@ function PartnerLogos() {
         {/* Google Cloud */}
         <div className="flex items-center gap-2 text-muted-foreground">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#4285F4" />
+            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#EA4335" />
             <path d="M2 17l10 5 10-5" stroke="#34A853" strokeWidth="2" fill="none" />
             <path d="M2 12l10 5 10-5" stroke="#FBBC05" strokeWidth="2" fill="none" />
           </svg>
@@ -39,12 +39,12 @@ function PartnerLogos() {
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">
-      {/* Subtle purple background glow */}
+      {/* Soft lavender background glow */}
       <div
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[700px] w-[900px] rounded-full opacity-[0.06]"
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[700px] w-[900px] rounded-full opacity-[0.08]"
         style={{
           background:
-            "radial-gradient(ellipse at center, oklch(0.6 0.15 260), transparent 70%)",
+            "radial-gradient(ellipse at center, #8b5cf6, transparent 70%)",
         }}
       />
 
@@ -58,7 +58,7 @@ export function HeroSection() {
             className="mb-10"
           >
             <div className="relative flex flex-col items-center gap-6">
-              {/* Trophy + Logo lockup */}
+              {/* Logo */}
               <div className="relative">
                 <div className="glow-container flex items-center justify-center">
                   <Image
@@ -94,7 +94,7 @@ export function HeroSection() {
             className="max-w-4xl text-balance text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl"
           >
             The AI scribe that{" "}
-            <span className="text-primary">won nationally.</span>
+            <span className="text-purple-600 dark:text-purple-400">won nationally.</span>
             <br />
             Built for veterinarians.
           </motion.h1>
@@ -118,7 +118,7 @@ export function HeroSection() {
             className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
           >
             <Link href="/">
-              <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8">
+              <Button size="lg" className="gap-2 bg-purple-600 text-white hover:bg-purple-700 px-8">
                 Try AwwScribe Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -128,7 +128,7 @@ export function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button variant="outline" size="lg" className="gap-2 px-8">
+              <Button variant="outline" size="lg" className="gap-2 px-8 border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-300 dark:hover:bg-purple-900/20">
                 View on Devpost
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -152,7 +152,7 @@ export function HeroSection() {
             transition={{ duration: 0.9, delay: 0.85 }}
             className="mt-16 w-full max-w-5xl"
           >
-            <div className="relative overflow-hidden rounded-xl border border-border/60 shadow-2xl shadow-primary/5">
+            <div className="relative overflow-hidden rounded-xl border border-purple-200/60 dark:border-purple-800/40 shadow-2xl shadow-purple-500/5">
               <Image
                 src="/images/product-preview.jpg"
                 alt="AwwScribe product interface showing SOAP note generation"
@@ -161,7 +161,7 @@ export function HeroSection() {
                 className="w-full"
                 priority
               />
-              <div className="absolute inset-0 rounded-xl ring-1 ring-primary/10" />
+              <div className="absolute inset-0 rounded-xl ring-1 ring-purple-500/10" />
             </div>
           </motion.div>
         </div>
