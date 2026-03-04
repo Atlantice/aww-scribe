@@ -8,27 +8,29 @@ import { Button } from "@/components/ui/button"
 
 function PartnerLogos() {
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
       <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
         Built with
       </span>
-      {/* ElevenLabs logo */}
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <rect x="7" y="2" width="3" height="20" rx="1.5" />
-          <rect x="14" y="2" width="3" height="20" rx="1.5" />
-        </svg>
-        <span className="text-sm font-medium text-foreground">ElevenLabs</span>
-      </div>
-      <div className="h-4 w-px bg-border" />
-      {/* Google Cloud logo */}
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" fill="oklch(0.45 0.12 170)" />
-          <path d="M2 17l10 5 10-5" stroke="oklch(0.45 0.12 170)" strokeWidth="2" fill="none" />
-          <path d="M2 12l10 5 10-5" stroke="oklch(0.55 0.10 170)" strokeWidth="2" fill="none" />
-        </svg>
-        <span className="text-sm font-medium text-foreground">Google Cloud</span>
+      <div className="flex items-center gap-6">
+        {/* ElevenLabs */}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <rect x="7" y="2" width="3" height="20" rx="1.5" />
+            <rect x="14" y="2" width="3" height="20" rx="1.5" />
+          </svg>
+          <span className="text-sm font-medium text-foreground">ElevenLabs</span>
+        </div>
+        <div className="h-4 w-px bg-border" />
+        {/* Google Cloud */}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#4285F4" />
+            <path d="M2 17l10 5 10-5" stroke="#34A853" strokeWidth="2" fill="none" />
+            <path d="M2 12l10 5 10-5" stroke="#FBBC05" strokeWidth="2" fill="none" />
+          </svg>
+          <span className="text-sm font-medium text-foreground">Google Cloud</span>
+        </div>
       </div>
     </div>
   )
@@ -37,31 +39,46 @@ function PartnerLogos() {
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">
-      {/* Subtle background glow */}
+      {/* Subtle purple background glow */}
       <div
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[800px] rounded-full opacity-[0.07]"
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[700px] w-[900px] rounded-full opacity-[0.06]"
         style={{
           background:
-            "radial-gradient(ellipse at center, oklch(0.55 0.15 170), transparent 70%)",
+            "radial-gradient(ellipse at center, oklch(0.6 0.15 260), transparent 70%)",
         }}
       />
 
       <div className="relative mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center text-center">
-          {/* First Place Badge */}
+          {/* First Place Badge — large, prominent */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="mb-8"
+            className="mb-10"
           >
-            <div className="relative">
-              <div className="flex items-center gap-3 rounded-full border border-[oklch(0.55_0.12_80/0.3)] bg-[oklch(0.55_0.12_80/0.08)] px-6 py-3">
-                <Trophy className="h-5 w-5 text-[oklch(0.7_0.15_80)]" />
-                <span className="text-sm font-semibold text-[oklch(0.7_0.15_80)]">
+            <div className="relative flex flex-col items-center gap-6">
+              {/* Trophy + Logo lockup */}
+              <div className="relative">
+                <div className="glow-container flex items-center justify-center">
+                  <Image
+                    src="/images/aww-logo.png"
+                    alt="AwwScribe logo"
+                    width={120}
+                    height={120}
+                    className="rounded-3xl"
+                    priority
+                  />
+                </div>
+              </div>
+
+              {/* Award pill */}
+              <div className="flex items-center gap-3 rounded-full border border-amber-300/40 bg-amber-50 px-6 py-3 dark:border-amber-500/30 dark:bg-amber-950/30">
+                <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
                   First Place Winner
                 </span>
-                <div className="h-4 w-px bg-[oklch(0.55_0.12_80/0.3)]" />
+                <div className="h-4 w-px bg-amber-300/50 dark:bg-amber-500/30" />
                 <span className="text-sm text-muted-foreground">
                   ElevenLabs x Google Cloud Hackathon
                 </span>
@@ -69,33 +86,15 @@ export function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Trophy + Headline */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="mb-6 flex flex-col items-center gap-6"
-          >
-            <div className="relative h-40 w-40 md:h-52 md:w-52">
-              <Image
-                src="/images/trophy.jpg"
-                alt="First place trophy from the ElevenLabs x Google Cloud Hackathon"
-                fill
-                className="rounded-2xl object-cover"
-                priority
-              />
-              <div className="absolute inset-0 rounded-2xl ring-1 ring-border/50" />
-            </div>
-          </motion.div>
-
+          {/* Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
             className="max-w-4xl text-balance text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl"
           >
             The AI scribe that{" "}
-            <span className="text-[oklch(0.45_0.12_170)]">won nationally.</span>
+            <span className="text-primary">won nationally.</span>
             <br />
             Built for veterinarians.
           </motion.h1>
@@ -103,7 +102,7 @@ export function HeroSection() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.45 }}
+            transition={{ duration: 0.7, delay: 0.35 }}
             className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl"
           >
             AwwScribe turns exam-room conversations into professional SOAP notes
@@ -115,14 +114,11 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
             className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
           >
             <Link href="/">
-              <Button
-                size="lg"
-                className="gap-2 bg-[oklch(0.45_0.12_170)] text-[oklch(0.98_0_0)] hover:bg-[oklch(0.5_0.12_170)] px-8"
-              >
+              <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8">
                 Try AwwScribe Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -143,7 +139,7 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
             className="mt-16"
           >
             <PartnerLogos />
@@ -153,10 +149,10 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.9 }}
+            transition={{ duration: 0.9, delay: 0.85 }}
             className="mt-16 w-full max-w-5xl"
           >
-            <div className="relative overflow-hidden rounded-xl border border-border/60 shadow-2xl">
+            <div className="relative overflow-hidden rounded-xl border border-border/60 shadow-2xl shadow-primary/5">
               <Image
                 src="/images/product-preview.jpg"
                 alt="AwwScribe product interface showing SOAP note generation"
@@ -165,7 +161,7 @@ export function HeroSection() {
                 className="w-full"
                 priority
               />
-              <div className="absolute inset-0 rounded-xl ring-1 ring-border/30" />
+              <div className="absolute inset-0 rounded-xl ring-1 ring-primary/10" />
             </div>
           </motion.div>
         </div>

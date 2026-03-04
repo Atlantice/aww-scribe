@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 
 export function CtaSection() {
   return (
-    <section className="border-t border-border/50 bg-card/30 py-24 md:py-32">
+    <section className="border-t border-border/50 bg-primary/[0.02] py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -25,10 +25,7 @@ export function CtaSection() {
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/">
-              <Button
-                size="lg"
-                className="gap-2 bg-[oklch(0.45_0.12_170)] text-[oklch(0.98_0_0)] hover:bg-[oklch(0.5_0.12_170)] px-8"
-              >
+              <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8">
                 Get Started Free
                 <ArrowRight className="h-4 w-4" />
               </Button>

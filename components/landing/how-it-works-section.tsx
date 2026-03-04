@@ -27,7 +27,7 @@ export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="border-y border-border/50 bg-card/30 py-24 md:py-32"
+      className="border-y border-border/50 bg-primary/[0.02] py-24 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
@@ -37,7 +37,7 @@ export function HowItWorksSection() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-[oklch(0.45_0.12_170)]">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             How It Works
           </p>
           <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl">
@@ -55,7 +55,7 @@ export function HowItWorksSection() {
               transition={{ duration: 0.5, delay: i * 0.15 }}
               className="relative"
             >
-              <div className="text-6xl font-bold text-[oklch(0.45_0.12_170/0.1)]">
+              <div className="text-6xl font-bold text-primary/10">
                 {item.step}
               </div>
               <h3 className="mt-2 text-xl font-semibold text-foreground">

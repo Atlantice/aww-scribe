@@ -60,14 +60,14 @@ export function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-[oklch(0.45_0.12_170)]">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Features
           </p>
           <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl">
             Everything your practice needs to chart faster
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-pretty text-muted-foreground">
-            Award-winning AI that listens, structures, and documents, so you can
+            Award-winning AI that listens, structures, and documents — so you can
             focus on the patient in front of you.
           </p>
         </motion.div>
@@ -80,10 +80,10 @@ export function FeaturesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-30px" }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="group rounded-xl border border-border/60 bg-card p-6 transition-colors hover:border-[oklch(0.45_0.12_170/0.3)] hover:bg-card/80"
+              className="group rounded-xl border border-border/60 bg-card p-6 transition-all hover:border-primary/30 hover:shadow-md hover:shadow-primary/5"
             >
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[oklch(0.45_0.12_170/0.1)]">
-                <feature.icon className="h-5 w-5 text-[oklch(0.45_0.12_170)]" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <feature.icon className="h-5 w-5 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">
                 {feature.title}
