@@ -37,31 +37,22 @@ export function TestimonialsSection() {
           transition={{ duration: 0.6 }}
           className="mx-auto max-w-2xl"
         >
-          <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-8 text-center dark:border-amber-800/50 dark:from-amber-950/20 dark:to-amber-900/10">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-200/50 dark:bg-amber-800/30">
-              <Image
-                src="/images/aww-logo.png"
-                alt="AwwScribe"
-                width={40}
-                height={40}
-                className="rounded-lg"
-              />
-            </div>
-            <p className="text-xs font-medium uppercase tracking-widest text-amber-700 dark:text-amber-400">
+          <div className="rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 p-8 text-center dark:border-purple-800/50 dark:from-purple-950/20 dark:to-violet-900/10">
+            <p className="text-xs font-medium uppercase tracking-widest text-purple-600 dark:text-purple-400">
               First Place Winner
             </p>
             <h3 className="mt-2 text-2xl font-bold text-foreground">
               ElevenLabs x Google Cloud Hackathon
             </h3>
             <p className="mt-4 text-sm text-muted-foreground">
-              Selected from hundreds of submissions. Judges praised the clinical accuracy, 
-              real-time transcription, and polished user experience.
+              Selected from hundreds of submissions for real-time transcription 
+              and polished user experience.
             </p>
             <a
               href="https://devpost.com/software/awwscribe"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-amber-700 transition-colors hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-purple-600 transition-colors hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
             >
               View submission on Devpost
               <ExternalLink className="h-4 w-4" />

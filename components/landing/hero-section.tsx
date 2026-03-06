@@ -20,12 +20,12 @@ export function HeroSection() {
           transition={{ duration: 0.5 }}
           className="mb-12 flex justify-center"
         >
-          <div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-50/80 px-5 py-2.5 backdrop-blur-sm dark:border-amber-800/50 dark:bg-amber-950/30">
-            <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+          <div className="inline-flex items-center gap-3 rounded-full border border-purple-200 bg-purple-50/80 px-5 py-2.5 backdrop-blur-sm dark:border-purple-800/50 dark:bg-purple-950/30">
+            <Trophy className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
               First Place Winner
             </span>
-            <span className="text-sm text-amber-600/60 dark:text-amber-400/60">
+            <span className="text-sm text-purple-600/70 dark:text-purple-400/70">
               ElevenLabs x Google Cloud Hackathon
             </span>
           </div>
@@ -115,22 +115,7 @@ export function HeroSection() {
         </motion.div>
       </div>
 
-      {/* Logo watermark - bottom right, subtle */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
-        className="absolute bottom-8 right-8 hidden opacity-10 lg:block"
-      >
-        <Image
-          src="/images/aww-logo.png"
-          alt=""
-          width={120}
-          height={120}
-          className="rounded-3xl"
-          aria-hidden="true"
-        />
-      </motion.div>
+
     </section>
   )
 }
