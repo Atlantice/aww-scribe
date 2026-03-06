@@ -27,7 +27,7 @@ export function LandingNav() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-purple-100/50 dark:border-purple-900/30 shadow-sm"
+          ? "bg-background/90 backdrop-blur-xl border-b border-border/50"
           : "bg-transparent"
       }`}
     >
@@ -48,7 +48,7 @@ export function LandingNav() {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-purple-600 dark:hover:text-purple-400"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
             </a>
@@ -57,7 +57,7 @@ export function LandingNav() {
 
         <div className="hidden items-center gap-3 md:flex">
           <Link href="/">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               Log In
             </Button>
           </Link>
@@ -83,7 +83,7 @@ export function LandingNav() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-purple-100/50 dark:border-purple-900/30 bg-background/95 backdrop-blur-xl md:hidden"
+            className="overflow-hidden border-t border-border/50 bg-background/95 backdrop-blur-xl md:hidden"
           >
             <div className="flex flex-col gap-4 px-6 py-6">
               {links.map((link) => (
@@ -98,7 +98,7 @@ export function LandingNav() {
               ))}
               <div className="flex flex-col gap-2 pt-2">
                 <Link href="/">
-                  <Button variant="outline" size="sm" className="w-full border-purple-200 dark:border-purple-800">Log In</Button>
+                  <Button variant="outline" size="sm" className="w-full">Log In</Button>
                 </Link>
                 <Link href="/">
                   <Button size="sm" className="w-full bg-purple-600 text-white hover:bg-purple-700">

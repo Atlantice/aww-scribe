@@ -1,134 +1,97 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Trophy, ExternalLink } from "lucide-react"
-
-const proofPoints = [
-  {
-    type: "award",
-    title: "First Place",
-    subtitle: "ElevenLabs x Google Cloud Hackathon",
-    description:
-      "Selected from hundreds of submissions. Judges praised the clinical accuracy, real-time transcription, and polished UX.",
-    link: "https://devpost.com/software/awwscribe",
-  },
-  {
-    type: "tech",
-    title: "Google Gemini 3.0 Flash",
-    subtitle: "Structured SOAP Generation",
-    description:
-      "Advanced reasoning and structured output mode excels at organizing unstructured speech into standardized documentation formats.",
-  },
-  {
-    type: "tech",
-    title: "ElevenLabs Scribe v2",
-    subtitle: "Real-Time Transcription",
-    description:
-      "Voice Activity Detection with veterinary-optimized models. Sub-100ms latency for truly ambient documentation.",
-  },
-]
-
-const quote = {
-  text: "The paperwork is harder than the medicine.",
-  attribution: "Every veterinarian, everywhere",
-  followup: "AwwScribe was built to change that.",
-}
+import { ExternalLink } from "lucide-react"
+import Image from "next/image"
 
 export function TestimonialsSection() {
   return (
     <section id="proof" className="py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
+        {/* Large quote - Isomorphic style */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="mb-24"
+        >
+          <blockquote className="text-center">
+            <p className="text-2xl font-medium italic text-foreground md:text-3xl lg:text-4xl">
+              &ldquo;The paperwork is harder than the medicine.&rdquo;
+            </p>
+            <footer className="mt-6 text-sm uppercase tracking-widest text-muted-foreground">
+              Every veterinarian, everywhere
+            </footer>
+          </blockquote>
+          <p className="mt-8 text-center text-lg text-purple-600 dark:text-purple-400">
+            AwwScribe was built to change that.
+          </p>
+        </motion.div>
+
+        {/* Award highlight - centered, prominent */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="mx-auto max-w-2xl"
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
-            Social Proof
-          </p>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl">
-            Validated by the industry
-          </h2>
+          <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-8 text-center dark:border-amber-800/50 dark:from-amber-950/20 dark:to-amber-900/10">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-200/50 dark:bg-amber-800/30">
+              <Image
+                src="/images/aww-logo.png"
+                alt="AwwScribe"
+                width={40}
+                height={40}
+                className="rounded-lg"
+              />
+            </div>
+            <p className="text-xs font-medium uppercase tracking-widest text-amber-700 dark:text-amber-400">
+              First Place Winner
+            </p>
+            <h3 className="mt-2 text-2xl font-bold text-foreground">
+              ElevenLabs x Google Cloud Hackathon
+            </h3>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Selected from hundreds of submissions. Judges praised the clinical accuracy, 
+              real-time transcription, and polished user experience.
+            </p>
+            <a
+              href="https://devpost.com/software/awwscribe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-amber-700 transition-colors hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
+            >
+              View submission on Devpost
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
         </motion.div>
 
-        {/* Quote block */}
-        <motion.blockquote
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-30px" }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mx-auto mt-12 max-w-2xl rounded-xl border border-purple-200 dark:border-purple-800/40 bg-gradient-to-br from-purple-50 to-violet-50/50 dark:from-purple-950/20 dark:to-violet-950/10 p-8 text-center"
+        {/* Tech validation - simple list */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-16 text-center"
         >
-          <p className="text-xl font-medium italic text-foreground md:text-2xl">
-            {`"${quote.text}"`}
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            Powered by industry leaders
           </p>
-          <footer className="mt-4 text-sm text-muted-foreground">
-            {"— "}
-            {quote.attribution}
-          </footer>
-          <p className="mt-2 text-sm font-semibold text-purple-600 dark:text-purple-400">
-            {quote.followup}
-          </p>
-        </motion.blockquote>
-
-        {/* Proof cards */}
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
-          {proofPoints.map((point, i) => (
-            <motion.div
-              key={point.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="rounded-xl border border-purple-100 dark:border-purple-900/30 bg-card p-6 transition-all hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md hover:shadow-purple-500/5"
-            >
-              {point.type === "award" && (
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950/30">
-                  <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                </div>
-              )}
-              {point.type === "tech" && (
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                  <svg
-                    className="h-5 w-5 text-purple-600 dark:text-purple-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-                    />
-                  </svg>
-                </div>
-              )}
-              <h3 className="text-lg font-semibold text-foreground">
-                {point.title}
-              </h3>
-              <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
-                {point.subtitle}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {point.description}
-              </p>
-              {point.link && (
-                <a
-                  href={point.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline"
-                >
-                  View submission
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
-            </motion.div>
-          ))}
-        </div>
+          <div className="mt-6 flex flex-col items-center justify-center gap-8 sm:flex-row sm:gap-16">
+            <div>
+              <p className="text-lg font-semibold text-foreground">Google Gemini 3.0 Flash</p>
+              <p className="text-sm text-muted-foreground">Structured SOAP generation</p>
+            </div>
+            <div className="hidden h-8 w-px bg-border sm:block" />
+            <div>
+              <p className="text-lg font-semibold text-foreground">ElevenLabs Scribe v2</p>
+              <p className="text-sm text-muted-foreground">Real-time transcription</p>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

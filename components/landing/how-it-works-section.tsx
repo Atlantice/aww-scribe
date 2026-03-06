@@ -4,22 +4,22 @@ import { motion } from "framer-motion"
 
 const steps = [
   {
-    step: "01",
+    number: "01",
     title: "Record",
     description:
-      "Hit record and speak naturally during the exam. AwwScribe listens via ElevenLabs Scribe v2 with Voice Activity Detection.",
+      "Hit record and speak naturally during the exam. ElevenLabs Scribe captures everything with Voice Activity Detection.",
   },
   {
-    step: "02",
+    number: "02",
     title: "Generate",
     description:
-      "Stop recording and Gemini 3.0 Flash instantly structures your findings into a professional SOAP note with diagnoses, meds, and vitals.",
+      "Gemini 3.0 Flash structures your findings into a complete SOAP note with diagnoses, medications, and vitals.",
   },
   {
-    step: "03",
-    title: "Review & Approve",
+    number: "03",
+    title: "Approve",
     description:
-      "Scan the color-coded SOAP sections, make any edits, and approve in 30 seconds. Done. Go home on time.",
+      "Review the color-coded sections, make any edits, and approve in 30 seconds. Go home on time.",
   },
 ]
 
@@ -27,46 +27,42 @@ export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="border-y border-purple-100 dark:border-purple-900/30 bg-gradient-to-br from-purple-50/40 to-violet-50/40 dark:from-purple-950/10 dark:to-violet-950/10 py-24 md:py-32"
+      className="border-y border-border/50 bg-muted/30 py-24 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="mb-16"
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
-            How It Works
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            How it works
           </p>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl">
-            Three steps. Zero after-hours charting.
+          <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Three steps to freedom from after-hours charting.
           </h2>
         </motion.div>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
-          {steps.map((item, i) => (
+        <div className="grid gap-12 md:grid-cols-3 md:gap-8">
+          {steps.map((step, i) => (
             <motion.div
-              key={item.step}
+              key={step.number}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
+              viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="relative"
             >
-              <div className="text-6xl font-bold text-purple-200 dark:text-purple-900/40">
-                {item.step}
-              </div>
-              <h3 className="mt-2 text-xl font-semibold text-foreground">
-                {item.title}
+              <span className="text-6xl font-bold text-purple-100 dark:text-purple-900/50">
+                {step.number}
+              </span>
+              <h3 className="mt-4 text-xl font-semibold text-foreground">
+                {step.title}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {item.description}
+                {step.description}
               </p>
-              {i < steps.length - 1 && (
-                <div className="absolute right-0 top-8 hidden h-px w-12 bg-purple-200 dark:bg-purple-800 md:block" />
-              )}
             </motion.div>
           ))}
         </div>

@@ -1,45 +1,57 @@
 import Image from "next/image"
 import Link from "next/link"
 
+const footerLinks = [
+  { label: "Home", href: "/landing" },
+  { label: "App", href: "/" },
+  { label: "Devpost", href: "https://devpost.com/software/awwscribe", external: true },
+]
+
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border/50 py-12">
+    <footer className="border-t border-border/50 py-16">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+        <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between">
+          {/* Logo */}
           <Link href="/landing" className="flex items-center gap-2.5">
             <Image
               src="/images/aww-logo.png"
               alt="AwwScribe logo"
-              width={24}
-              height={24}
-              className="rounded-md"
+              width={28}
+              height={28}
+              className="rounded-lg"
             />
-            <span className="text-sm font-semibold text-foreground">
-              AwwScribe
-            </span>
+            <span className="text-sm font-semibold text-foreground">AwwScribe</span>
           </Link>
 
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a
-              href="https://devpost.com/software/awwscribe"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-foreground"
-            >
-              Devpost
-            </a>
-            <Link
-              href="/"
-              className="transition-colors hover:text-foreground"
-            >
-              App
-            </Link>
+          {/* Links */}
+          <div className="flex items-center gap-8">
+            {footerLinks.map((link) =>
+              link.external ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </div>
 
+          {/* Copyright */}
           <p className="text-xs text-muted-foreground">
-            {"Built with ElevenLabs & Google Cloud. \u00A9 "}
-            {new Date().getFullYear()}
-            {" AwwScribe."}
+            {new Date().getFullYear()} AwwScribe
           </p>
         </div>
       </div>

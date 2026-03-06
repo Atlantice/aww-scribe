@@ -1,51 +1,27 @@
 "use client"
 
 import { motion } from "framer-motion"
-import {
-  Mic,
-  FileText,
-  Brain,
-  Shield,
-  Clock,
-  Stethoscope,
-} from "lucide-react"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 
-const features = [
+const cards = [
   {
-    icon: Mic,
-    title: "Ambient Listening",
+    label: "OUR TECH",
+    title: "Powered by ElevenLabs & Google Gemini",
     description:
-      "Real-time transcription via ElevenLabs Scribe v2 with sub-100ms latency. Just speak naturally during the exam.",
+      "Real-time transcription with sub-100ms latency. Advanced AI structuring for accurate SOAP notes.",
   },
   {
-    icon: Brain,
-    title: "Gemini-Powered SOAP Notes",
+    label: "OUR MISSION",
+    title: "Give veterinarians their evenings back",
     description:
-      "Google Gemini 3.0 Flash structures your verbal findings into organized Subjective, Objective, Assessment, and Plan sections.",
+      "What takes 8-10 minutes of manual charting now takes 30 seconds to review and approve.",
   },
   {
-    icon: FileText,
-    title: "Complete Documentation",
+    label: "OUR APPROACH",
+    title: "You speak. We document. You approve.",
     description:
-      "Diagnoses with codes, medications with dosages, vitals, follow-up recommendations, and provider attestation. All from your voice.",
-  },
-  {
-    icon: Clock,
-    title: "30-Second Review",
-    description:
-      "What used to take 8-10 minutes of manual charting is now a 30-second review-and-approve workflow.",
-  },
-  {
-    icon: Shield,
-    title: "You Stay in Control",
-    description:
-      "AwwScribe captures what you say. It never generates diagnoses or treatment recommendations. Your clinical authority, preserved.",
-  },
-  {
-    icon: Stethoscope,
-    title: "Vet-Optimized Vocabulary",
-    description:
-      'Accurately transcribes terms like "borborygmi," "carpus," and "pruritus" thanks to veterinary-tuned models.',
+      "AwwScribe captures what you say. It never generates diagnoses. Your clinical authority, preserved.",
   },
 ]
 
@@ -53,47 +29,65 @@ export function FeaturesSection() {
   return (
     <section id="features" className="py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
+        {/* Section intro */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="mb-16"
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
-            Features
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            Our goal
           </p>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl">
-            Everything your practice needs to chart faster
+          <h2 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
+            We&apos;re using AI to transform veterinary documentation.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-pretty text-muted-foreground">
-            Award-winning AI that listens, structures, and documents — so you can
-            focus on the patient in front of you.
-          </p>
         </motion.div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, i) => (
+        {/* Cards grid - Isomorphic style */}
+        <div className="grid gap-6 md:grid-cols-3">
+          {cards.map((card, i) => (
             <motion.div
-              key={feature.title}
+              key={card.label}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="group rounded-xl border border-purple-100 dark:border-purple-900/30 bg-card p-6 transition-all hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md hover:shadow-purple-500/5"
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="group relative rounded-2xl border border-border/50 bg-card p-8 transition-all hover:border-purple-200 hover:bg-purple-50/30 dark:hover:border-purple-800 dark:hover:bg-purple-950/10"
             >
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <feature.icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground">
-                {feature.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {feature.description}
+              <p className="text-xs font-medium uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                {card.label}
               </p>
+              <h3 className="mt-4 text-xl font-semibold text-foreground">
+                {card.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                {card.description}
+              </p>
+              <div className="mt-6">
+                <ArrowRight className="h-5 w-5 text-muted-foreground/50 transition-transform group-hover:translate-x-1 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
+              </div>
             </motion.div>
           ))}
         </div>
+
+        {/* Try it link */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mt-12 text-center"
+        >
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 transition-colors hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+          >
+            Try AwwScribe now
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </motion.div>
       </div>
     </section>
   )
